@@ -1,0 +1,27 @@
+import { Model, Document } from "mongoose";
+import { SearchCriteria, IBaseModelDoc, IBaseModel } from "../../models/";
+
+export interface IBaseRepository<IModelDoc extends IBaseModelDoc> {
+    
+    createFromBody(body: object): IModelDoc;
+    createFromInterface(model: IBaseModel): IModelDoc;
+    getCollectionName(): string;
+
+    single(id: string, populationArgument?: any): Promise<IModelDoc>;
+
+    list(searchCriteria: SearchCriteria, populationArgument?: any): Promise<IModelDoc[]>;
+
+    blank();
+
+    count(searchCriteria: SearchCriteria, ): Promise<number>;
+
+    create(model: IModelDoc): Promise<IModelDoc>;
+
+    update(id:string, body: any): Promise<IModelDoc>;
+
+    destroy(id:string): Promise<IModelDoc>;
+
+    clear(searchBody: any): Promise<void>;
+
+    query(searchBody: any, populationArgument: any): Promise<IModelDoc[]>;
+}

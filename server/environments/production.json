@@ -1,0 +1,13 @@
+{
+    "name": "leblum.identity.api",
+    "database": {
+      "mongoConnectionString": "mongodb://dbrown:password1@ds161162.mlab.com:61162/leblum-vendor-api"
+    },
+    "ampq":{
+        "ampqConnectionString": "amqp://wkaxkarj:NAsD1ISNCESHMmVlK9Mch6IcBjapIBYn@puma.rmq.cloudamqp.com/wkaxkarj"
+    },
+    "jwtSecretToken": "asdf97a9s8d7baodfbhoda8f7g9adf8asj",
+    "returnCallStackOnError": true,
+    "isConsoleLoggingActive": true,
+    "clientDistFolder": "prod"
+}

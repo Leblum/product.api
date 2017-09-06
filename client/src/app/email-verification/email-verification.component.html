@@ -1,0 +1,16 @@
+<alert type="warning" *ngIf="showWorking" class="alert-box">We're verifying your email now.</alert>
+<alert type="success" *ngIf="showSuccess" class="alert-box">Awesome!  Your email has been verified. You'll be redirected to the home page in <span class="seconds-left">{{secondsLeft}}</span></alert>
+<alert type="danger" *ngIf="showError" class="alert-box">We're sorry, but something seems to have gone wrong with the email verification process.
+    <accordion>
+        <accordion-group #group>
+            <div accordion-heading>
+            Error Details
+            <i class="pull-right float-xs-right glyphicon"
+                [ngClass]="{'glyphicon-chevron-down': group?.isOpen, 'glyphicon-chevron-right': !group?.isOpen}"></i>
+            </div>
+            <code class="error-code">
+               {{errorText}}
+            </code>
+        </accordion-group>
+    </accordion>
+</alert>

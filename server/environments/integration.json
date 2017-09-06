@@ -1,0 +1,15 @@
+{
+    "name": "leblum.identity.api",
+    "database": {
+      "mongoConnectionString": "mongodb://root:sKN3DyfBKMYBDG6D@ds111103.mlab.com:11103/leblum-identity-integration"
+    },
+    "ampq":{
+        "ampqConnectionString": "amqp://wkaxkarj:NAsD1ISNCESHMmVlK9Mch6IcBjapIBYn@puma.rmq.cloudamqp.com/wkaxkarj"
+    },
+    "systemUserPassword": "df9h87df9h879dffgdiuyndds9f8dfgjr",
+    "jwtSecretToken": "leblum1234",
+    "returnCallStackOnError": true,
+    "isConsoleLoggingActive": true,
+    "mandrillApiKey": "Zh8DlnQXZIW5urHG7f1Llw", // Integration always uses the test mandrill key, that way we don't have to worry about our test users.
+    "clientDistFolder": "dev"
+}
