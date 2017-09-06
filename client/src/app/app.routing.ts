@@ -13,8 +13,8 @@ import { PasswordResetComponent } from "./password-reset/password-reset.componen
 
 export const ApplicationRoutes: Routes = [
     // For testing this first line, you can have the base rout redirected to the component you're working on.
-    {path: '', redirectTo: 'reset-password', pathMatch: 'full'},
-    //{path: '', redirectTo: 'home', pathMatch: 'full'},
+    //{path: '', redirectTo: 'reset-password', pathMatch: 'full'},
+    {path: '', redirectTo: 'home', pathMatch: 'full'},
     {path: 'home', component: HomeComponent},
     {path: 'magazine', component: HomeComponent},
     {path: 'support', component: HomeComponent},
