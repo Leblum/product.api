@@ -52,5 +52,5 @@ RUN gulp build
 
 RUN npm test
 
-EXPOSE 8080
+EXPOSE 9000
 CMD ["npm", "start"]
