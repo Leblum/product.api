@@ -1,7 +1,7 @@
 {
-    "name": "leblum.identity.api",
+    "name": "leblum.product.api",
     "database": {
-      "mongoConnectionString": "mongodb://root:leblum1234@ds111123.mlab.com:11123/leblum-vendor-api-test"
+      "mongoConnectionString": "mongodb://root:leblum1234@ds111123.mlab.com:11123/leblum-product-test"
     },
     "ampq":{
         "ampqConnectionString": "amqp://wkaxkarj:NAsD1ISNCESHMmVlK9Mch6IcBjapIBYn@puma.rmq.cloudamqp.com/wkaxkarj"

@@ -10,7 +10,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: ['leblum.identity.api'],
+  app_name: ['leblum.product.api'],
   /**
    * Your New Relic license key.
    */

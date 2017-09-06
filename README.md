@@ -1,4 +1,4 @@
-# Leblum Identity API 
+# Leblum Product API 
  
 Implementation of async - await methods in mongoose and express.
 
@@ -20,7 +20,7 @@ set NODE_CLUSTER_SCHED_POLICY=rr
 dev
 In one terminal  
 ```
-    $ nodemon dist/server.js
+    $ npm run nm
 ```
 In another terminal
 ```
@@ -84,36 +84,36 @@ checking in changes to see automatic deploys working
 Take a look at the logs for a container.
 ```docker logs container-id```
 
- ```docker build -t leblum/identity.api .```
+ ```docker build -t leblum/product.api .```
 
- ```docker stop leblum-identity-api```
+ ```docker stop leblum-product-api```
 
-```docker run --name=leblum-identity-api -p 8080:8080 leblum/identity.api```
+```docker run --name=leblum-product-api -p 8080:8080 leblum/product.api```
 
 Removing a named container
-```docker rm /leblum-identity-api```
+```docker rm /leblum-product-api```
 
 Run it in the background--->
-```docker run -d --name=leblum-identity-api -p 8080:8080 leblum/identity.api ```
+```docker run -d --name=leblum-product-api -p 8080:8080 leblum/product.api ```
 
 Then you can stream the logs out if you want
-```docker attach leblum-identity-api```
+```docker attach leblum-product-api```
 
 Did you get a segmentation fault on running the image?  Maybe you need to rebuild the docker image from scratch
-```docker build --no-cache -t leblum/identity.api .```
+```docker build --no-cache -t leblum/product.api .```
 
  Deploy a stack from the compose.yml
  ```
-docker stack deploy -c docker-compose.yml lb-identity
+docker stack deploy -c docker-compose.yml lb-product
 
- docker stack ps lb-identity
+ docker stack ps lb-product
 
- docker stack rm lb-identity
+ docker stack rm lb-product
 
  ```
 
 Show the status of a stack/service
- docker stack services lb-identity
+ docker stack services lb-product
 
 
  docker-machine create --driver digitalocean --digitalocean-access-token=3a6f3017e9b0d2a38b1f4dbdaaa7815da0e419dd226bf266251d5454f0d03c7e testing-machine

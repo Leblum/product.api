@@ -14,13 +14,7 @@ export class AuthenticationRouter extends BaseRouter {
     }
 
     public getRouter(): Router {
-        return this.router
-            .post(`${this.resource}`, async (request: Request, response: Response, next: NextFunction) => {
-                await this.controller.authenticate(request, response, next);
-            })
-            .post(`${this.resource}/refresh`, async (request: Request, response: Response, next: NextFunction) => {
-                await this.controller.refreshToken(request, response, next);
-            });
+        return this.router;
     }
 
     public authMiddleware(request: Request, response: Response, next: NextFunction): Response{

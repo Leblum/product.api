@@ -1,4 +1,3 @@
-import { IRole } from './role';
 
 export interface ITokenPayload {
     organizationId: string,

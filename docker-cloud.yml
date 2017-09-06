@@ -3,7 +3,7 @@ api:
   deployment_strategy: high_availability
   environment:
     - NODE_ENV=development
-  image: 'leblum/identity.api:latest'
+  image: 'leblum/product.api:latest'
   ports: 
     - "8080:8080"
   restart: always

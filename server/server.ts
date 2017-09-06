@@ -121,7 +121,7 @@ class Application {
       const isSetupComplete = HealthStatus.isHealthy();
       response.statusCode = isSetupComplete ? 200 : 500;
       response.json({
-        ApplicationName: CONST.APPLICATION_NAME,
+        ApplicationName: Config.active.get('name'),
         StatusCode: isSetupComplete ? 200 : 500,
         SetupComplete: isSetupComplete,
       });
@@ -183,29 +183,12 @@ class Application {
 
   private routes(): void {
     log.info('Initializing Routers');
-    // OPEN Endpoints only
-    // The authentication endpoint is 'Open', and should be added to the router pipeline before the other routers
-    this.express.use(CONST.ep.API + CONST.ep.V1 + CONST.ep.AUTHENTICATION, new routers.AuthenticationRouter().getRouter());
-
-    // The registration endpoint is also 'open', and will allow any users to register. They will be placed in the guest org, without any priviliges.
-    this.express.use(CONST.ep.API + CONST.ep.V1 + CONST.ep.REGISTER, new routers.RegistrationRouter().getRouter());
-
-    // This will get the public only router for email verification
-    this.express.use(CONST.ep.API + CONST.ep.V1 + CONST.ep.VALIDATE_EMAIL, new routers.EmailVerificationRouter().getPublicRouter());
-
-    // This will get the public only router for email verification
-    this.express.use(CONST.ep.API + CONST.ep.V1, new routers.PasswordResetTokenRouter().getPublicRouter());
 
     // Now we lock up the rest.
     this.express.use('/api/*', new routers.AuthenticationRouter().authMiddleware);
 
     // Basically the users can authenticate, and register, but much past that, and you're going to need an admin user to access our identity api.
-    this.express.use(CONST.ep.API + CONST.ep.V1, authz.permit('admin'), new routers.EmailVerificationRouter().getRouter());
-    this.express.use(CONST.ep.API + CONST.ep.V1, authz.permit('admin'), new routers.OrganizationRouter().getRouter());
-    this.express.use(CONST.ep.API + CONST.ep.V1, authz.permit('admin'), new routers.UserRouter().getRouter());
-    this.express.use(CONST.ep.API + CONST.ep.V1, authz.permit('admin'), new routers.RoleRouter().getRouter());
-    this.express.use(CONST.ep.API + CONST.ep.V1, authz.permit('admin'), new routers.PermissionRouter().getRouter());
-    this.express.use(CONST.ep.API + CONST.ep.V1, authz.permit('admin'), new routers.PasswordResetTokenRouter().getRouter());
+    this.express.use(CONST.ep.API + CONST.ep.V1, authz.permit('product-editor'), new routers.ProductRouter().getRouter());
   }
 
   // We want to return a json response that will at least be helpful for 
@@ -214,13 +197,11 @@ class Application {
     log.info('Initializing Handlers');
     this.express.get('/api', (request: express.Request, response: express.Response) => {
       response.json({
-        name: CONST.APPLICATION_NAME,
-        description: 'An identity api for the leblum services',
+        name: Config.active.get('name'),
+        description: 'An product api for the leblum services',
         APIVersion: CONST.ep.V1,
         DocumentationLocation: `${request.protocol}://${request.get('host')}${CONST.ep.API_DOCS}`,
         APILocation: `${request.protocol}://${request.get('host')}${CONST.ep.API}${CONST.ep.V1}`,
-        AuthenticationEndpoint: `${request.protocol}://${request.get('host')}${CONST.ep.API}${CONST.ep.V1}/authenticate`,
-        RegisterEndpoint: `${request.protocol}://${request.get('host')}${CONST.ep.API}${CONST.ep.V1}/register`,
         Healthcheck: `${request.protocol}://${request.get('host')}/healthcheck`
       })
     });

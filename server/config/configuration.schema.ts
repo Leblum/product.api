@@ -11,7 +11,7 @@ public static convictSchema: convict.Config = convict({
     port: {
       doc: 'The port to bind.',
       format: 'port',
-      default: 8080,
+      default: 9000,
       env: 'PORT'
     },
     name: {
