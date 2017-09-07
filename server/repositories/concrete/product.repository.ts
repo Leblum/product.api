@@ -9,4 +9,10 @@ export class ProductRepository extends BaseRepository<IProductDoc> implements IP
     public constructor() {
         super();
     }
+
+    // public async createProductFromTemplate(productTemplate: IProductDoc): Promise<IProductDoc>{
+    //     productTemplate.isTemplate = false;
+    //     await productTemplate.save();
+    //     return productTemplate;
+    // }
 }

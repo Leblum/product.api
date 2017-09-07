@@ -6,9 +6,7 @@
 import { ModuleWithProviders } from '@angular/core/src/metadata/ng_module';
 import { Routes, RouterModule } from '@angular/router';
 
-import { EmailVerificationComponent } from './email-verification/email-verification.component';
 import { HomeComponent } from './home/home.component';
-import { PasswordResetComponent } from "./password-reset/password-reset.component";
 
 
 export const ApplicationRoutes: Routes = [
@@ -16,11 +14,6 @@ export const ApplicationRoutes: Routes = [
     //{path: '', redirectTo: 'reset-password', pathMatch: 'full'},
     {path: '', redirectTo: 'home', pathMatch: 'full'},
     {path: 'home', component: HomeComponent},
-    {path: 'magazine', component: HomeComponent},
-    {path: 'support', component: HomeComponent},
-    {path: 'my-account', component: HomeComponent},
-    {path: 'verify-email', component: EmailVerificationComponent},
-    {path: 'reset-password', component: PasswordResetComponent}
 ];
 
 export const ApplicationRouting: ModuleWithProviders = RouterModule.forRoot(ApplicationRoutes);
