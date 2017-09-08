@@ -5,6 +5,7 @@ export class HealthStatus{
     public static isLoggingInitialized: boolean = false;
     public static isSecured: boolean = false;
     public static isDatabaseSeeded: boolean = false;
+    public static isSupportingServicesSeeded: boolean = false;
 
     public static isHealthy(): boolean{
         return  this.isDatabaseConnected &&
@@ -12,6 +13,7 @@ export class HealthStatus{
                 this.isEnvironmentVariableSet &&
                 this.isLoggingInitialized &&
                 this.isDatabaseSeeded &&
+                this.isSupportingServicesSeeded &&
                 this.isSecured;
     }
 }

@@ -29,6 +29,13 @@ public static convictSchema: convict.Config = convict({
         sensitive: true,
       },
     },
+    identityApiEndpoint:{
+      doc: 'The location of the identity api',
+      format: String,
+      default: 'dev.identity.lebum.io',
+      env: 'IDENTITY_API_ENDPOINT',
+      sensitive: false
+    },
     ampq:{
       ampqConnectionString:{
         doc: 'AMPQ Connection string for rabbit',

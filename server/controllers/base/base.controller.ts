@@ -118,7 +118,7 @@ export abstract class BaseController {
             model = await this.repository.update(this.getId(request), updateBody);
             if (!model) { throw { message: 'Item Not found', status: 404 }; }
 
-            response.status(202).json({ model });
+            response.status(202).json(model);
             log.info(`Updated a: ${this.repository.getCollectionName()}, ID: ${model._id}`);
             return model;
         } catch (err) { next(err) }
@@ -137,7 +137,7 @@ export abstract class BaseController {
 
             model = await this.repository.create(model);
 
-            response.status(201).json({ model });
+            response.status(201).json(model);
 
             log.info(`Created New: ${this.repository.getCollectionName()}, ID: ${model._id}`);
 

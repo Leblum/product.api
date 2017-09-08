@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import * as helmet from 'helmet';
 import * as routers from './routers';
 
+
 import { ObjectId } from 'bson';
 import { join } from 'path';
 import { json, urlencoded } from 'body-parser';
@@ -17,6 +18,8 @@ import { Config } from './config/config';
 import { Router } from 'express';
 import { ApiErrorHandler } from './api-error-handler';
 import { HealthStatus } from './health-status';
+import { SupportingServicesBootstrap } from './config/supporting-services.bootstrap';
+
 
 import methodOverride = require('method-override');
 import log = require('winston');
@@ -40,7 +43,8 @@ class Application {
     this.express = express();
     this.logging();      // Initialize logging 
     this.healthcheck();  // Router for the healthcheck
-    this.connectDatabase() // Setup database connection
+    this.connectDatabase(); // Setup database connection
+    this.seedSupportingServices();  // We want to make sure that anything this service needs exists in other services.
     this.loggingClientEndpoint();
     this.middleware();   // Setup the middleware - compression, etc...
     this.secure();       // Turn on security measures
@@ -104,7 +108,7 @@ class Application {
 
   // Because we really don't need to fill the logs with a ton of health check 200's we're going to skip
   // logging the 200 health checks.  if they are 500's and something went wrong that's a different story and we'll log them.
-  private skipHealthCheck(request: express.Request, response: express.Response){
+  private skipHealthCheck(request: express.Request, response: express.Response) {
     return request.originalUrl.includes('healthcheck') && response.statusCode === 200;
   }
 
@@ -142,6 +146,12 @@ class Application {
     this.server.emit("dbConnected");  // Used by the unit tests to prevent them from starting until the database is connected. 
   }
 
+  private async seedSupportingServices() {
+    await SupportingServicesBootstrap.seed();
+    log.info('Supporting services have been seeded, all ancillary data has been created');
+    HealthStatus.isSupportingServicesSeeded = true;
+  }
+
   private secure() {
     this.express.use(helmet()); //Protecting the app from a lot of vulnerabilities turn on when you want to use TLS.
     HealthStatus.isSecured = true;
@@ -158,8 +168,8 @@ class Application {
   private client(): void {
     log.info('Initializing Client');
 
-    this.express.use(express.static(path.join(__dirname, '../client/dist/'+ Config.active.get('clientDistFolder') + '/')));
-    this.express.use('*', express.static(path.join(__dirname, '../client/dist/' + Config.active.get('clientDistFolder') +  '/index.html')));
+    this.express.use(express.static(path.join(__dirname, '../client/dist/' + Config.active.get('clientDistFolder') + '/')));
+    this.express.use('*', express.static(path.join(__dirname, '../client/dist/' + Config.active.get('clientDistFolder') + '/index.html')));
   }
 
   // Configure Express middleware.
@@ -188,7 +198,7 @@ class Application {
     this.express.use('/api/*', new routers.AuthenticationRouter().authMiddleware);
 
     // Basically the users can authenticate, and register, but much past that, and you're going to need an admin user to access our identity api.
-    this.express.use(CONST.ep.API + CONST.ep.V1, authz.permit('product-editor'), new routers.ProductRouter().getRouter());
+    this.express.use(CONST.ep.API + CONST.ep.V1, authz.permit('product:admin'), new routers.ProductRouter().getRouter());
   }
 
   // We want to return a json response that will at least be helpful for 

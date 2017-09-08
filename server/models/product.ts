@@ -94,6 +94,8 @@ export interface IProduct extends IBaseModel {
         season?: string,
     }
     href: string,
+    createdAt?: Date; //Automatically created by mongoose.
+    modifiedAt?: Date; //Automatically created by mongoose.
 }
 
 export interface IProductDoc extends IProduct, IBaseModelDoc {
