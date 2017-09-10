@@ -9,6 +9,7 @@ const util = require('util');
 var bcrypt = require('bcrypt');
 import log = require('winston');
 import { AuthenticationUtil } from "../controllers/authentication.util";
+import { IdentityApiService } from "../services/identity.api.service";
 
 // This is where we're going to bootstrap other services that we need to interact with.
 // In this case we're talking to the identity service, and we need to make sure that it has the roles that we need.
@@ -21,7 +22,7 @@ export class SupportingServicesBootstrap {
     private static async seedIdentityApi() {
         // We need to get a system user token so authenticate with the system user creds first
         try {
-            const systemToken = await AuthenticationUtil.getSystemUserToken();
+            const systemToken = await IdentityApiService.authenticateSystemUser();
 
             // Here we're going to seed the identity api with the roles that we require.
             this.seedRole('product:admin', 'Full control over products.', systemToken);

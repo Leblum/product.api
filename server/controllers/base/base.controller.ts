@@ -54,13 +54,14 @@ export abstract class BaseController {
 
     public async clear(request: Request, response: Response, next: NextFunction): Promise<void> {
         try {
-            let count: number = await this.repository.count(new SearchCriteria(request, next));
+            let before: number = await this.repository.count(new SearchCriteria(request, next));
             await this.repository.clear(request.body);
+            let after: number = await this.repository.count(new SearchCriteria(request, next));
 
             response.json({
                 Collection: this.repository.getCollectionName(),
                 Message: 'All items cleared from collection',
-                CountOfItemsRemoved: count
+                CountOfItemsRemoved: before-after
             });
 
             log.info(`Cleared the entire collection: ${this.repository.getCollectionName()}`);
@@ -124,7 +125,7 @@ export abstract class BaseController {
         } catch (err) { next(err) }
     }
 
-    public async create(request: Request, response: Response, next: NextFunction): Promise<IBaseModelDoc> {
+    public async create(request: Request, response: Response, next: NextFunction, sendResponse : boolean = true): Promise<IBaseModelDoc> {
         try {
             let model = await this.preCreateHook(this.repository.createFromBody(request.body));
 
@@ -137,7 +138,9 @@ export abstract class BaseController {
 
             model = await this.repository.create(model);
 
-            response.status(201).json(model);
+            if(sendResponse){
+                response.status(201).json(model);
+            }
 
             log.info(`Created New: ${this.repository.getCollectionName()}, ID: ${model._id}`);
 

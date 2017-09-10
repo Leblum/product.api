@@ -9,8 +9,9 @@ const util = require('util');
 var bcrypt = require('bcrypt');
 import log = require('winston');
 import { Router, Request, Response, RequestParamHandler, NextFunction, RequestHandler, Application } from 'express';
+import { IdentityApiService } from "../services/identity.api.service";
 
-export class AuthenticationUtil{
+export class AuthenticationUtil {
 
     public static sendAuthFailure(response: Response, status: number, description: string): Response {
         return response.status(status).json({
@@ -19,15 +20,8 @@ export class AuthenticationUtil{
         });
     }
 
-    // TODO make this smarter.  Singleton, and refresh token whenever it's close to expiring
-    public static async getSystemUserToken(): Promise<string>{
-        const authResponse = await identityApi
-        .post(`${Config.active.get('identityApiEndpoint')}${CONST.ep.AUTHENTICATE}`)
-        .send({
-            "email": "system@leblum.com",
-            "password": Config.active.get('systemUserPassword')
-        });
-
-        return authResponse.body.token;
-    }
+    // // TODO make this smarter.  Singleton, and refresh token whenever it's close to expiring
+    // public static async getSystemUserToken(): Promise<string> {
+    //     return await IdentityApiService.authenticateUser("system@leblum.com", Config.active.get('systemUserPassword'));
+    // }
 }

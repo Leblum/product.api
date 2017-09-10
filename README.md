@@ -186,4 +186,17 @@ gulp watch
 npm run nm
 ```
 
-Testing autobuild
+# Text indexes in mongodb
+
+At some point we're going to want to index various fields on the product table, so that we can allow searching, and that searching doesn't hurt 
+performance.
+
+Here's two ways to create indexes on mongodb ... which you can do throuhg mlab.
+
+db.reviews.createIndex( { displayName: "text" } )
+
+Or you can create a text index over all string fields in a collection:
+
+db.collection.createIndex( { "$**": "text" } )
+
+Obviously when the time comes we'll want to put a text index just on the fields that we want to search over, and not all fields.

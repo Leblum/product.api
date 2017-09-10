@@ -1,9 +1,9 @@
 import { Database } from '../../config/database/database';
 import { App, server } from '../../server-entry';
-import { Product } from '../../models';
+import { Product, IProduct } from '../../models';
 import { Config } from '../../config/config';
 import { CONST } from "../../constants";
-import { AuthenticationTestUtility } from "../authentication.util.spec";
+import { AuthenticationTestUtility, systemAuthToken, productAdminToken, productEditorToken } from "../authentication.util.spec";
 import { Cleanup } from "../cleanup.util.spec";
 import { suite, test } from "mocha-typescript";
 import { DatabaseBootstrap } from "../../config/database/database-bootstrap";
@@ -11,22 +11,18 @@ import { DatabaseBootstrap } from "../../config/database/database-bootstrap";
 import * as supertest from 'supertest';
 import * as chai from 'chai';
 
-const api = supertest.agent(App.server);  
+const api = supertest.agent(App.server);
 const mongoose = require("mongoose");
 const expect = chai.expect;
 const should = chai.should();
 
-let userAuthToken: string;
-let systemAuthToken: string;
-let guestOrgId: string;
-
 @suite('Product Test')
 class ProductTest {
-    
+
     // First we need to get some users to work with from the identity service
     public static before(done) {
         console.log('Testing products');
-        App.server.on('dbConnected',async ()=>{
+        App.server.on('dbConnected', async () => {
             await Cleanup.clearDatabase();
             await DatabaseBootstrap.seed();
 
@@ -36,36 +32,69 @@ class ProductTest {
         });
     }
 
-    public static async after(){
+    public static async after() {
         await Cleanup.clearDatabase();
     }
 
     @test('Just setting up a test for testing initialization')
-    public async register() {
-        
+    public async initialize() {
         expect(1).to.be.equal(1);
         return;
     }
 
-    // @test('allow a user to register')
-    // public async register() {
-    //     let user = {
-    //         "firstName": "Dave",
-    //         "lastName": "Brown",
-    //         "email": "registeredUser@leblum.com",
-    //         "password": "test354435",
-    //         "isTokenExpired": false
-    //     }
+    @test('system admins should be allowed to create new products')
+    public async TestAbilityToCreateProduct() {
+        let product: IProduct = {
+            displayName: "Midnight Snap Dragon",
+            isTemplate: true,
+        }
 
-    //     let response = await api
-    //         .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.REGISTER}`)
-    //         .send(user);
-    //     expect(response.status).to.equal(201);
-    //     expect(response.body).to.be.an('object');
-    //     expect(response.body.email).to.be.equal(user.email);
-    //     expect(response.body.password.length).to.be.equal(0);
-    //     return;
-    // }
+        let response = await api
+            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
+            .set(CONST.TOKEN_HEADER_KEY, systemAuthToken)
+            .send(product);
+        expect(response.status).to.equal(201);
+        expect(response.body).to.be.an('object');
+        expect(response.body.displayName).to.be.equal(product.displayName);
+        expect(response.body.isTemplate).to.be.true;
+        return;
+    }
+
+    @test('product admins should be able to create new product templates')
+    public async AbilityToCreateNewProductTemplates() {
+        let product: IProduct = {
+            displayName: "Midnight Snap Dragon",
+            isTemplate: true,
+        }
+
+        let response = await api
+            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
+            .set(CONST.TOKEN_HEADER_KEY, productAdminToken)
+            .send(product);
+        expect(response.status).to.equal(201);
+        expect(response.body).to.be.an('object');
+        expect(response.body.displayName).to.be.equal(product.displayName);
+        expect(response.body.isTemplate).to.be.true;
+        return;
+    }
+
+    @test('product editors should not be able to create new product templates')
+    public async ProductEditorsCantCreateNewProducts() {
+        let product: IProduct = {
+            displayName: "Midnight Snap Dragon",
+            isTemplate: true,
+        }
+
+        let response = await api
+            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
+            .set(CONST.TOKEN_HEADER_KEY, productEditorToken)
+            .send(product);
+
+        expect(response.status).to.equal(403);
+        expect(response.body).to.be.an('object');
+        return;
+    }
+
 
     // @test('should list all the users')
     // public async userList() {

@@ -18,6 +18,7 @@ export interface IBaseRepository<IModelDoc extends IBaseModelDoc> {
     create(model: IModelDoc): Promise<IModelDoc>;
 
     update(id:string, body: any): Promise<IModelDoc>;
+    update(id:string, body: IModelDoc): Promise<IModelDoc>;
 
     destroy(id:string): Promise<IModelDoc>;
 

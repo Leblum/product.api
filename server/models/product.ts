@@ -16,8 +16,8 @@ export interface IProduct extends IBaseModel {
     category?: string,
     tags?: [string],
     isTemplate: boolean,
-    isLocal: boolean,
-    masterProductId: string,
+    isLocal?: boolean,
+    masterProductId?: string,
     sku?: string,
     primaryColor?: number,
     productLocation?: [number],
@@ -93,7 +93,7 @@ export interface IProduct extends IBaseModel {
         lifespan?: string,
         season?: string,
     }
-    href: string,
+    href?: string,
     createdAt?: Date; //Automatically created by mongoose.
     modifiedAt?: Date; //Automatically created by mongoose.
 }
@@ -113,7 +113,7 @@ const ProductSchema = new Schema({
     type: { type: Number, enum: [EnumHelper.getValuesFromEnum(ProductType)] },
     category: { type: String },
     tags: { type: [String] },
-    isTemplate: { type: Boolean, required: true, default: false },
+    isTemplate: { type: Boolean, required: true, default: true },
     isLocal: { type: Boolean },
     masterProductId: { type: Schema.Types.ObjectId },
     sku: { type: String },
