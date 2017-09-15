@@ -129,10 +129,11 @@ const ProductSchema = new Schema({
     sku: { type: String },
     primaryColor: { type: Number, enum: [EnumHelper.getValuesFromEnum(PrimaryColor)] },
     // What the mongo compass query looks like: {"productLocation":{"$geoWithin":{"$centerSphere":[[40.76665209596496,-73.98568992400604],4.4717033545255673e-7]}}}
-    productLocation: { 'type': {type: String, enum: "Point", default: "Point"}, coordinates: { type: [Number], default: [-90,90] } },
+    // The order here is Longitude, and then Latitude.
+    productLocation: { 'type': {type: String, enum: "Point", default: "Point"}, coordinates: { type: [Number], default: [0,0] } },
     deliveryOptions: {
         personalPickup: {
-            pickupLocation: { 'type': {type: String, enum: "Point", default: "Point"}, coordinates: { type: [Number], default: [-90,90]} },
+            pickupLocation: { 'type': {type: String, enum: "Point", default: "Point"}, coordinates: { type: [Number], default: [0,0]} },
         },
         supplierDelivery: {
             serviceZipCodes: { type: [Number] },
