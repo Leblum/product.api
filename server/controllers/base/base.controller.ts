@@ -21,6 +21,7 @@ export abstract class BaseController {
     // Determines what roles ownership will be tested with.  Not all roles require ownership, ie Admins
     public abstract rolesRequiringOwnership: Array<string>;
 
+    // If implemented this will be called on document creation.  This will allow us to add ownership at creation time.
     public abstract addOwnerships(request: Request, response: Response, next: NextFunction, modelDoc: IBaseModelDoc): void;
 
     // The child classes implementation of ownership testing.  Allows for child classes to test various data points.
@@ -208,7 +209,9 @@ export abstract class BaseController {
                 CollectionCount: count,
                 SearchCriteria: searchCriteria.criteria,
             });
+
             log.info(`Executed Count Operation: ${this.repository.getCollectionName()}, Count: ${count}`);
+            
             return count;
         } catch (err) { next(err) }
 

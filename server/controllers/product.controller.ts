@@ -11,7 +11,6 @@ var bcrypt = require('bcrypt');
 
 export class ProductController extends BaseController {
 
-  public ownerships: string[];
   public defaultPopulationArgument = null;
   public rolesRequiringOwnership = ["product:editor"];
   public isOwnershipRequired = true;
@@ -22,6 +21,8 @@ export class ProductController extends BaseController {
     super();
   }
 
+  // This will add ownerships whenever a document is created.
+  // Here we can later add supplier ID, and also check that supplier ID in the checking logic.
   public addOwnerships(request: Request, response: Response, next: NextFunction, productDocument: IProductDoc ): void {
     let currentToken: ITokenPayload = request[CONST.REQUEST_TOKEN_LOCATION];
     productDocument.ownerships = [{

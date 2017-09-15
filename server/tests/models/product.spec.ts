@@ -1,6 +1,6 @@
 import { Database } from '../../config/database/database';
 import { App, server } from '../../server-entry';
-import { Product, IProduct } from '../../models';
+import { Product, IProduct, ITokenPayload } from '../../models';
 import { Config } from '../../config/config';
 import { CONST } from "../../constants";
 import { AuthenticationTestUtility, systemAuthToken, productAdminToken, productEditorToken } from "../authentication.util.spec";
@@ -53,6 +53,7 @@ class ProductTest {
             .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
             .set(CONST.TOKEN_HEADER_KEY, systemAuthToken)
             .send(product);
+
         expect(response.status).to.equal(201);
         expect(response.body).to.be.an('object');
         expect(response.body.displayName).to.be.equal(product.displayName);
@@ -73,6 +74,7 @@ class ProductTest {
             .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
             .set(CONST.TOKEN_HEADER_KEY, productAdminToken)
             .send(product);
+
         expect(response.status).to.equal(201);
         expect(response.body).to.be.an('object');
         expect(response.body.displayName).to.be.equal(product.displayName);
@@ -94,47 +96,30 @@ class ProductTest {
 
     @test('making sure get product by id works')
     public async getByIdWorking() {
-        let product: IProduct = {
-            displayName: "Midnight Snap Dragon",
-            isTemplate: true,
-        }
-
-        let createResponse = await api
-            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
-            .set("x-access-token", productAdminToken)
-            .send(product);
+        let createdId = await this.createProductTemplate(productAdminToken);
 
         let response = await api
-            .get(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${createResponse.body._id}`)
+            .get(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${createdId}`)
             .set("x-access-token", productAdminToken);
 
         expect(response.status).to.equal(200);
         expect(response.body).to.be.an('object');
         expect(response.body).to.have.property('displayName');
-        expect(response.body.displayName).to.equal(product.displayName);
         return;
     }
 
     @test('it should update a product')
     public async updateAProduct() {
-        let product: IProduct = {
-            displayName: "Midnight Snap Dragon",
-            isTemplate: true,
-        }
-
-        let createResponse = await api
-            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
-            .set("x-access-token", productAdminToken)
-            .send(product);
+        let createdId = await this.createProductTemplate(productAdminToken);
 
         let productUpdate = {
-            _id: `${createResponse.body._id}`,
+            _id: `${createdId}`,
             displayName: "Daves Tulip",
             isTemplate: true,
         };
 
         let response = await api
-            .put(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${createResponse.body._id}`)
+            .put(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${createdId}`)
             .set("x-access-token", productAdminToken)
             .send(productUpdate);
 
@@ -146,25 +131,16 @@ class ProductTest {
 
     @test('it should delete a product')
     public async deleteAProduct() {
-        let product: IProduct = {
-            displayName: "Midnight Snap Dragon",
-            isTemplate: true,
-        }
-
-        let createResponse = await api
-            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
-            .set("x-access-token", productAdminToken)
-            .send(product);
+        let createdId = await this.createProductTemplate(productAdminToken);
 
         let response = await api
-            .delete(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${createResponse.body._id}`)
+            .delete(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${createdId}`)
             .set("x-access-token", productAdminToken);
 
         expect(response.status).to.equal(200);
         expect(response.body).to.have.property('ItemRemoved');
         expect(response.body).to.have.property('ItemRemovedId');
-        expect(response.body.ItemRemovedId).to.be.equal(createResponse.body._id);
-        expect(response.body.ItemRemoved.displayName).to.be.equal(product.displayName);
+        expect(response.body.ItemRemovedId).to.be.equal(createdId);
         return;
     }
 
@@ -191,43 +167,26 @@ class ProductTest {
     // We need to make sure all the role checking logic works for destroy.
     @test('it should delete a product when the organization IDs match.')
     public async deleteOnlyIfOrgIdsMatch() {
-        let product: IProduct = {
-            displayName: "Midnight Snap Dragon",
-            isTemplate: true,
-        }
-
-        let createResponse = await api
-            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
-            .set("x-access-token", productAdminToken)
-            .send(product);
+        let createdId = await this.createProductTemplate(productAdminToken);
 
         let response = await api
-            .delete(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${createResponse.body._id}`)
+            .delete(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${createdId}`)
             .set("x-access-token", productAdminToken);
 
         expect(response.status).to.equal(200);
         expect(response.body).to.have.property('ItemRemoved');
         expect(response.body).to.have.property('ItemRemovedId');
-        expect(response.body.ItemRemovedId).to.be.equal(createResponse.body._id);
-        expect(response.body.ItemRemoved.displayName).to.be.equal(product.displayName);
+        expect(response.body.ItemRemovedId).to.be.equal(createdId);
         return;
     }
 
     // We need to make sure all the role checking logic works for destroy.
     @test('it send back a 403 unauthorized when org ids dont match on DELETE')
     public async deleteFailsForDifferentOrgIds() {
-        let product: IProduct = {
-            displayName: "Midnight Snap Dragon",
-            isTemplate: true,
-        }
-
-        let createResponse = await api
-            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
-            .set("x-access-token", systemAuthToken)
-            .send(product);
+        let createdId = await this.createProductTemplate(systemAuthToken);
 
         let response = await api
-            .delete(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${createResponse.body._id}`)
+            .delete(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${createdId}`)
             .set("x-access-token", productEditorToken);
 
         expect(response.status).to.equal(403);
@@ -237,24 +196,16 @@ class ProductTest {
     // We need to make sure all the role checking logic works for update.
     @test('it should work fine for update if role is product:admin')
     public async updateSucceedsAccrossAdmins() {
-        let product: IProduct = {
-            displayName: "Midnight Snap Dragon",
-            isTemplate: true,
-        }
-
-        let createResponse = await api
-            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
-            .set("x-access-token", systemAuthToken)
-            .send(product);
+        let createdId = await this.createProductTemplate(systemAuthToken);
 
         let productUpdate = {
-            _id: `${createResponse.body._id}`,
+            _id: `${createdId}`,
             displayName: "Daves Tulip",
             isTemplate: true,
         };
 
         let response = await api
-            .put(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${createResponse.body._id}`)
+            .put(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${createdId}`)
             .set("x-access-token", productAdminToken)
             .send(productUpdate);
 
@@ -267,24 +218,17 @@ class ProductTest {
     // We need to make sure all the role checking logic works for update.
     @test('it should work fine for update is done by product:editor who is in the same organization')
     public async updateSucceedsForEditorInSameOrg() {
-        let product: IProduct = {
-            displayName: "Midnight Snap Dragon",
-            isTemplate: true,
-        }
 
-        let createResponse = await api
-            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
-            .set("x-access-token", productAdminToken)
-            .send(product);
+        let createdId = await this.createProductTemplate(productAdminToken);
 
         let productUpdate = {
-            _id: `${createResponse.body._id}`,
+            _id: `${createdId}`,
             displayName: "Daves Tulip",
             isTemplate: true,
         };
 
         let response = await api
-            .put(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${createResponse.body._id}`)
+            .put(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${createdId}`)
             .set("x-access-token", productEditorToken)
             .send(productUpdate);
 
@@ -325,25 +269,14 @@ class ProductTest {
     // We need to make sure all the role checking logic works for update.
     @test('create a product from a product template')
     public async creatProductFromTemplate() {
-        // First create a template
-        let product: IProduct = {
-            displayName: "Midnight Snap Dragon",
-            isTemplate: true,
-        }
-
-        let createResponse = await api
-            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
-            .set("x-access-token", systemAuthToken)
-            .send(product);
 
         let response = await api
-            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}${CONST.ep.CREATE_FROM_TEMPLATE}/${createResponse.body._id}`)
+            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}${CONST.ep.CREATE_FROM_TEMPLATE}/${await this.createProductTemplate(systemAuthToken)}`)
             .set("x-access-token", systemAuthToken)
             .send({});
 
         expect(response.status).to.equal(201);
         expect(response.body).to.have.property('displayName');
-        expect(response.body.displayName).to.equal(product.displayName);
         expect(response.body).to.have.property('isTemplate');
         expect(response.body.isTemplate).to.equal(false);
         return;
@@ -352,19 +285,9 @@ class ProductTest {
     // Testing creation of product template from product:admin can be edited by product:editor
     @test('create a product from a product template edit by product:editor')
     public async checkPermissionsOnTemplatesForEdit() {
-        // First create a template
-        let product: IProduct = {
-            displayName: "Midnight Snap Dragon",
-            isTemplate: true,
-        }
-
-        let createResponse = await api
-            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
-            .set("x-access-token", systemAuthToken)
-            .send(product);
 
         let templateCreateResponse = await api
-            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}${CONST.ep.CREATE_FROM_TEMPLATE}/${createResponse.body._id}`)
+            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}${CONST.ep.CREATE_FROM_TEMPLATE}/${await this.createProductTemplate(systemAuthToken)}`)
             .set("x-access-token", productEditorToken)
             .send({});
 
@@ -387,22 +310,66 @@ class ProductTest {
         return;
     }
 
+    // Testing creation of product template from product:admin can be edited by product:editor
+    @test('geolocation searching working')
+    public async addGeoLocationData() {
+
+        let templateCreateResponse = await api
+            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}${CONST.ep.CREATE_FROM_TEMPLATE}/${await this.createProductTemplate(systemAuthToken)}`)
+            .set("x-access-token", productEditorToken)
+            .send({});
+
+        // This should update this product to have a location near hearst tower
+        let productUpdate = {
+            _id: `${templateCreateResponse.body._id}`,
+            productLocation: {
+                coordinates: [
+                    -73.9888796,
+                    40.7707493
+                ],
+                type: "Point"
+            }
+        };
+
+        let response = await api
+            .put(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${templateCreateResponse.body._id}`)
+            .set("x-access-token", productEditorToken)
+            .send(productUpdate);
+
+        expect(response.status).to.equal(202);
+
+        let locationQuery = {
+            "productLocation": {
+                "$geoWithin": {
+                    "$centerSphere": [
+                        [
+                            -73.98,
+                            40.77
+                        ],
+                        2 / 3963.2 // this is 2 mile radius
+                    ]
+                }
+            }
+        }
+
+        // Now we're going to search for products in that location, and we should get this one back.
+        let queryResponse = await api
+            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}${CONST.ep.common.QUERY}`)
+            .set("x-access-token", productEditorToken)
+            .send(locationQuery);
+
+        expect(queryResponse.status).to.equal(200);
+        expect(queryResponse.body).to.be.an('array');
+        expect(queryResponse.body.length).to.equal(1); // make sure there is at least one product returned.
+
+        return;
+    }
+
     // create a product from a template, all with system user, try and edit by product editor
     @test('create a product template, create product by admin, edit by product:editor')
     public async checkPermissionsOnEditForProductEditor() {
-        // First create a template
-        let product: IProduct = {
-            displayName: "Midnight Snap Dragon",
-            isTemplate: true,
-        }
-
-        let createResponse = await api
-            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
-            .set("x-access-token", systemAuthToken)
-            .send(product);
-
         let templateCreateResponse = await api
-            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}${CONST.ep.CREATE_FROM_TEMPLATE}/${createResponse.body._id}`)
+            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}${CONST.ep.CREATE_FROM_TEMPLATE}/${await this.createProductTemplate(systemAuthToken)}`)
             .set("x-access-token", systemAuthToken)
             .send({});
 
@@ -417,8 +384,22 @@ class ProductTest {
             .set("x-access-token", productEditorToken)
             .send(productUpdate);
 
-            expect(response.status).to.equal(403);
+        expect(response.status).to.equal(403);
         return;
+    }
+
+    private async createProductTemplate(authToken: string):Promise<string>{
+        let product: IProduct = {
+            displayName: "Midnight Snap Dragon",
+            isTemplate: true,
+        }
+
+        let createResponse = await api
+            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}`)
+            .set("x-access-token", authToken)
+            .send(product);
+
+        return createResponse.body._id;
     }
 
 }
