@@ -1,7 +1,6 @@
 import { BaseService } from "./base/base.service";
 import { Config } from '../config/config';
 import { CONST } from "../constants";
-import { AuthenticationUtil } from '../controllers/authentication.util';
 
 import * as moment from 'moment';
 import * as superagent from "superagent";

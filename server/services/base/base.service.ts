@@ -1,6 +1,5 @@
 import { Config } from '../../config/config';
 import { CONST } from "../../constants";
-import { AuthenticationUtil } from '../../controllers/authentication.util';
 import log = require('winston');
 
 import * as superagent from "superagent";

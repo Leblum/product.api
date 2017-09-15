@@ -1,14 +1,58 @@
 import { NextFunction, Request, RequestHandler, RequestParamHandler, Response, Router } from 'express';
 import { Document, DocumentQuery, Model, Schema } from 'mongoose';
 import * as log from 'winston';
-import { IValidationError, SearchCriteria, IBaseModel, IBaseModelDoc } from '../../models/';
+import { IValidationError, SearchCriteria, IBaseModel, IBaseModelDoc, ITokenPayload } from '../../models/';
 import { ObjectId } from 'bson';
 import { BaseRepository, IBaseRepository } from "../../repositories/";
+import { CONST } from "../../constants";
+import { OwnershipType } from "../../enumerations";
+import { Authz } from "../authorization";
+import { IOwnership } from "../../models/ownership.interface";
+import { ApiErrorHandler } from "../../api-error-handler";
 
 export abstract class BaseController {
 
     protected abstract repository: IBaseRepository<IBaseModelDoc>;
     public abstract defaultPopulationArgument: object;
+
+    // Determines whether the base class will test ownership
+    public abstract isOwnershipRequired: boolean;
+
+    // Determines what roles ownership will be tested with.  Not all roles require ownership, ie Admins
+    public abstract rolesRequiringOwnership: Array<string>;
+
+    public abstract addOwnerships(request: Request, response: Response, next: NextFunction, modelDoc: IBaseModelDoc): void;
+
+    // The child classes implementation of ownership testing.  Allows for child classes to test various data points.
+    public abstract isOwner(request: Request, response: Response, next: NextFunction, document: IBaseModelDoc): boolean;
+
+    protected isOwnerInOwnership(document: IBaseModel, ownerId: string, ownershipType: OwnershipType): boolean {
+        let isOwner: boolean = false;
+
+        document.ownerships.forEach(documentOwnershipElement => {
+            if (documentOwnershipElement.ownershipType === ownershipType
+                && documentOwnershipElement.ownerId === ownerId) {
+                isOwner = true;
+            }
+        });
+        return isOwner;
+    }
+
+    public async isModificationAllowed(request: Request, response: Response, next: NextFunction): Promise<boolean> {
+        // If ownership is required we need to make sure the user has the rights to CRUD this item.
+        if (this.isOwnershipRequired && this.rolesRequiringOwnership.length > 0 &&
+            // Is the user a role, that exists in the roles array that requires an ownership test.
+            Authz.isMatchBetweenRoleLists(this.rolesRequiringOwnership, (request[CONST.REQUEST_TOKEN_LOCATION] as ITokenPayload).roles)
+        ) {
+            // We need to get the document before we can CRUD it
+            let document = await this.repository.single(this.getId(request));
+            if (!this.isOwner(request, response, next, document)) {
+                ApiErrorHandler.sendAuthFailure(response, 403, 'You are not allowed to CRUD this resource.');
+                return false;
+            }
+        }
+        return true;
+    }
 
     public async isValid(model: IBaseModelDoc): Promise<IValidationError[]> {
         return null;
@@ -21,7 +65,7 @@ export abstract class BaseController {
     public async preUpdateHook(model: IBaseModelDoc): Promise<IBaseModelDoc> {
         return model;
     }
-    
+
     protected getId(request: Request): string {
         return request && request.params ? request.params['id'] : null;
     }
@@ -40,7 +84,7 @@ export abstract class BaseController {
             validationErorrs: validationErrors
         });
     }
-    
+
     public async query(request: Request, response: Response, next: NextFunction): Promise<IBaseModelDoc[]> {
         try {
             let models: IBaseModelDoc[] = await this.repository.query(request.body, this.defaultPopulationArgument);
@@ -61,7 +105,7 @@ export abstract class BaseController {
             response.json({
                 Collection: this.repository.getCollectionName(),
                 Message: 'All items cleared from collection',
-                CountOfItemsRemoved: before-after
+                CountOfItemsRemoved: before - after
             });
 
             log.info(`Cleared the entire collection: ${this.repository.getCollectionName()}`);
@@ -70,17 +114,19 @@ export abstract class BaseController {
 
     public async destroy(request: Request, response: Response, next: NextFunction): Promise<IBaseModelDoc> {
         try {
-            let deletedModel = await this.repository.destroy(this.getId(request));
+            if (await this.isModificationAllowed(request, response, next)) {
+                let deletedModel = await this.repository.destroy(this.getId(request));
 
-            if (!deletedModel) { throw { message: "Item Not Found", status: 404 }; }
+                if (!deletedModel) { throw { message: "Item Not Found", status: 404 }; }
 
-            response.json({
-                ItemRemovedId: deletedModel.id,
-                ItemRemoved: deletedModel,
-            });
-            log.info(`Removed a: ${this.repository.getCollectionName()}, ID: ${this.getId(request)}`);
+                response.json({
+                    ItemRemovedId: deletedModel.id,
+                    ItemRemoved: deletedModel,
+                });
+                log.info(`Removed a: ${this.repository.getCollectionName()}, ID: ${this.getId(request)}`);
 
-            return deletedModel;
+                return deletedModel;
+            }
         } catch (err) { next(err); }
     }
 
@@ -95,56 +141,60 @@ export abstract class BaseController {
 
     private async update(request: Request, response: Response, next: NextFunction, isFull: boolean): Promise<IBaseModelDoc> {
         try {
-            let model = await this.preUpdateHook(this.repository.createFromBody(request.body));
+            if (await this.isModificationAllowed(request, response, next)) {
+                let model = await this.preUpdateHook(this.repository.createFromBody(request.body));
 
-            //I think validation will break on partial updates.  Something to look for.
-            let validationErrors = await this.isValid(model);
+                //I think validation will break on partial updates.  Something to look for.
+                let validationErrors = await this.isValid(model);
 
-            if (validationErrors && validationErrors.length > 0) {
-                this.respondWithValidationErrors(request, response, next, validationErrors);
-                return null;
+                if (validationErrors && validationErrors.length > 0) {
+                    this.respondWithValidationErrors(request, response, next, validationErrors);
+                    return null;
+                }
+
+                // notice that we're using the request body in the set operation NOT the item after the pre update hook.
+                let updateBody: any;
+                if (isFull) {
+                    // here we have a full document, so we don't need the set operation
+                    updateBody = model;
+                }
+                else {
+                    // here someone only passed in a few fields, so we use the set operation to only change the fields that were passed in.
+                    updateBody = { $set: request.body }
+                }
+
+                model = await this.repository.update(this.getId(request), updateBody);
+                if (!model) { throw { message: 'Item Not found', status: 404 }; }
+
+                response.status(202).json(model);
+                log.info(`Updated a: ${this.repository.getCollectionName()}, ID: ${model._id}`);
+                return model;
             }
-
-            // notice that we're using the request body in the set operation NOT the item after the pre update hook.
-            let updateBody: any;
-            if (isFull) {
-                // here we have a full document, so we don't need the set operation
-                updateBody = model;
-            }
-            else {
-                // here someone only passed in a few fields, so we use the set operation to only change the fields that were passed in.
-                updateBody = { $set: request.body }
-            }
-
-            model = await this.repository.update(this.getId(request), updateBody);
-            if (!model) { throw { message: 'Item Not found', status: 404 }; }
-
-            response.status(202).json(model);
-            log.info(`Updated a: ${this.repository.getCollectionName()}, ID: ${model._id}`);
-            return model;
         } catch (err) { next(err) }
     }
 
-    public async create(request: Request, response: Response, next: NextFunction, sendResponse : boolean = true): Promise<IBaseModelDoc> {
+    public async create(request: Request, response: Response, next: NextFunction, sendResponse: boolean = true): Promise<IBaseModelDoc> {
         try {
-            let model = await this.preCreateHook(this.repository.createFromBody(request.body));
+                let model = await this.preCreateHook(this.repository.createFromBody(request.body));
 
-            let validationErrors = await this.isValid(model);
+                let validationErrors = await this.isValid(model);
 
-            if (validationErrors && validationErrors.length > 0) {
-                this.respondWithValidationErrors(request, response, next, validationErrors);
-                return null;
-            }
+                if (validationErrors && validationErrors.length > 0) {
+                    this.respondWithValidationErrors(request, response, next, validationErrors);
+                    return null;
+                }
 
-            model = await this.repository.create(model);
+                this.addOwnerships(request, response, next, model);
 
-            if(sendResponse){
-                response.status(201).json(model);
-            }
+                model = await this.repository.create(model);
 
-            log.info(`Created New: ${this.repository.getCollectionName()}, ID: ${model._id}`);
+                if (sendResponse) {
+                    response.status(201).json(model);
+                }
 
-            return model;
+                log.info(`Created New: ${this.repository.getCollectionName()}, ID: ${model._id}`);
+
+                return model;
         } catch (err) { next(err) }
     }
 

@@ -12,6 +12,7 @@ export const CONST = {
         ORGANIZATIONS: '/organizations',
         PRODUCT_TEMPLATES: '/product-templates',
         PRODUCTS: '/products',
+        CREATE_FROM_TEMPLATE: '/create-product-from-template',
         client: {
         },
         common:{

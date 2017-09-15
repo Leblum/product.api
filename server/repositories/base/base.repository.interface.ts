@@ -3,6 +3,7 @@ import { SearchCriteria, IBaseModelDoc, IBaseModel } from "../../models/";
 
 export interface IBaseRepository<IModelDoc extends IBaseModelDoc> {
     
+    save(document: IModelDoc);
     createFromBody(body: object): IModelDoc;
     createFromInterface(model: IBaseModel): IModelDoc;
     getCollectionName(): string;
@@ -13,7 +14,7 @@ export interface IBaseRepository<IModelDoc extends IBaseModelDoc> {
 
     blank();
 
-    count(searchCriteria: SearchCriteria, ): Promise<number>;
+    count(searchCriteria: SearchCriteria): Promise<number>;
 
     create(model: IModelDoc): Promise<IModelDoc>;
 

@@ -3,10 +3,11 @@ import mongoose = require('mongoose');
 import { Schema, Model, Document } from 'mongoose';
 import { BaseController } from './base/base.controller';
 import { Config } from '../config/config';
-import { ITokenPayload } from '../models/';
+import { ITokenPayload, IBaseModelDoc } from '../models/';
 import { CONST } from "../constants";
-import { AuthenticationUtil } from "./index";
 import { ProductRepository, IProductRepository } from "../repositories/index";
+import { IOwnership } from "../models/ownership.interface";
+import { ApiErrorHandler } from "../api-error-handler";
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -16,8 +17,18 @@ export class AuthenticationController extends BaseController {
     private saltRounds: Number = 5;
     private tokenExpiration: string = '24h';
     public defaultPopulationArgument = null;
+    public rolesRequiringOwnership = [];
+    public isOwnershipRequired = false;
 
     protected repository: IProductRepository = new ProductRepository();
+
+    public addOwnerships(request: Request, response: Response, next: NextFunction, modelDoc: IBaseModelDoc): IBaseModelDoc {
+        throw new Error("Method not implemented.");
+    }
+
+    public isOwner(request: Request, response: Response, next: NextFunction, document: IBaseModelDoc): boolean {
+        throw new Error("Method not implemented.");
+    }
 
     constructor() {
         super();
@@ -30,7 +41,7 @@ export class AuthenticationController extends BaseController {
                 // verifies secret and checks exp
                 //Rewrite to use async or something 
                 jwt.verify(token, Config.active.get('jwtSecretToken'), (err, decoded) => {
-                    if (err) { AuthenticationUtil.sendAuthFailure(response, 401, `Failed to authenticate token. The timer *may* have expired on this token. err: ${err}`); }
+                    if (err) { ApiErrorHandler.sendAuthFailure(response, 401, `Failed to authenticate token. The timer *may* have expired on this token. err: ${err}`); }
                     else {
                         var token: ITokenPayload = decoded;
                         request[CONST.REQUEST_TOKEN_LOCATION] = token;
@@ -39,10 +50,10 @@ export class AuthenticationController extends BaseController {
                 });
             } else {
                 //No token, send auth failure
-                return AuthenticationUtil.sendAuthFailure(response, 403, 'No Authentication Token Provided');
+                return ApiErrorHandler.sendAuthFailure(response, 403, 'No Authentication Token Provided');
             }
         } catch (err) {
-            AuthenticationUtil.sendAuthFailure(response, 401, "Authentication Failed");
+            ApiErrorHandler.sendAuthFailure(response, 401, "Authentication Failed");
         }
     }
 }

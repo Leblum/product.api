@@ -2,7 +2,6 @@ import { Database } from '../config/database/database';
 import { App, server } from '../server-entry';
 import { Config } from '../config/config';
 import { CONST } from "../constants";
-import { AuthenticationUtil } from '../controllers/authentication.util';
 
 import * as moment from 'moment';
 import * as supertest from 'supertest';

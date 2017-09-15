@@ -13,6 +13,13 @@ export class ApiErrorHandler {
             exception: exception
         });
     }
+    
+    public static sendAuthFailure(response: Response, status: number, description: string): Response {
+        return response.status(status).json({
+            message: 'Authentication Failed',
+            description: description
+        });
+    }
 
     public static HandleApiError(error: Error & { status: number }, request: Request, response: Response, next: NextFunction) {
         if(error.stack){

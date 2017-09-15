@@ -4,6 +4,12 @@ export enum OrganizationType{
     supplier = 3
 }
 
+export enum OwnershipType{
+    supplier=1,
+    organization=2,
+    user=3
+}
+
 export enum ProductType{
     stem = 1,
     pottedPlant = 2,

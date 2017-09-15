@@ -6,13 +6,8 @@ import { IProductRepository } from '../interfaces/product.repository.interface';
 
 export class ProductRepository extends BaseRepository<IProductDoc> implements IProductRepository, IBaseRepository<IProductDoc> {
     protected mongooseModelInstance: Model<IProductDoc> = Product;
+    
     public constructor() {
         super();
     }
-
-    // public async createProductFromTemplate(productTemplate: IProductDoc): Promise<IProductDoc>{
-    //     productTemplate.isTemplate = false;
-    //     await productTemplate.save();
-    //     return productTemplate;
-    // }
 }

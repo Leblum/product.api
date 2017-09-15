@@ -1,7 +1,8 @@
 import { mongoose } from '../config/database/database';
 import { Schema, Model, Document, model } from 'mongoose';
 import { IBaseModel, IBaseModelDoc } from "./index";
-import { EnumHelper, ProductType, PrimaryColor } from "../enumerations";
+import { EnumHelper, ProductType, PrimaryColor, OwnershipType } from "../enumerations";
+import { IOwnership } from "./ownership.interface";
 
 
 export interface IProduct extends IBaseModel {
@@ -10,8 +11,6 @@ export interface IProduct extends IBaseModel {
     shortDescription?: string,
     longDescription?: string,
     thumbnailDescription?: string,
-    organizationId?: string,
-    supplierId?: string,
     type?: number,
     category?: string,
     tags?: [string],
@@ -20,10 +19,16 @@ export interface IProduct extends IBaseModel {
     masterProductId?: string,
     sku?: string,
     primaryColor?: number,
-    productLocation?: [number],
+    productLocation?: {
+        type:string,
+        coordinates: Array<number>
+    },
     deliveryOptions?: {
         personalPickup?: {
-            pickupLocation?: [number],
+            pickupLocation?: {
+                type:string,
+                coordinates: Array<number>
+            }
         },
         supplierDelivery?: {
             serviceZipCodes?: [number],
@@ -94,8 +99,10 @@ export interface IProduct extends IBaseModel {
         season?: string,
     }
     href?: string,
-    createdAt?: Date; //Automatically created by mongoose.
-    modifiedAt?: Date; //Automatically created by mongoose.
+    createdBy?: string;
+    modifiedBy?: string;
+    createdAt?: Date,
+    modifiedAt?: Date,
 }
 
 export interface IProductDoc extends IProduct, IBaseModelDoc {
@@ -103,13 +110,16 @@ export interface IProductDoc extends IProduct, IBaseModelDoc {
 }
 
 const ProductSchema = new Schema({
+    ownerships: [{
+        _id: { auto: false },
+        ownerId: { type: String },
+        ownershipType: { type: Number, enum: [EnumHelper.getValuesFromEnum(OwnershipType)] },
+    }],
     displayName: { type: String },
     commonName: { type: String },
     shortDescription: { type: String },
     longDescription: { type: String },
     thumbnailDescription: { type: String },
-    organizationId: { type: Schema.Types.ObjectId },
-    supplierId: { type: Schema.Types.ObjectId },
     type: { type: Number, enum: [EnumHelper.getValuesFromEnum(ProductType)] },
     category: { type: String },
     tags: { type: [String] },
@@ -118,10 +128,11 @@ const ProductSchema = new Schema({
     masterProductId: { type: Schema.Types.ObjectId },
     sku: { type: String },
     primaryColor: { type: Number, enum: [EnumHelper.getValuesFromEnum(PrimaryColor)] },
-    productLocation: { type: [Number], index: '2dsphere' }, // This might cause issues, but we'll see.
+    // What the mongo compass query looks like: {"productLocation":{"$geoWithin":{"$centerSphere":[[40.76665209596496,-73.98568992400604],4.4717033545255673e-7]}}}
+    productLocation: { 'type': {type: String, enum: "Point", default: "Point"}, coordinates: { type: [Number], default: [-90,90] } },
     deliveryOptions: {
         personalPickup: {
-            pickupLocation: { type: [Number], index: '2dsphere' }
+            pickupLocation: { 'type': {type: String, enum: "Point", default: "Point"}, coordinates: { type: [Number], default: [-90,90]} },
         },
         supplierDelivery: {
             serviceZipCodes: { type: [Number] },
@@ -191,8 +202,11 @@ const ProductSchema = new Schema({
         lifespan: { type: String },
         season: { type: String },
     },
-    href: {type: String }
+    href: { type: String }
 }, { timestamps: true });
+
+ProductSchema.index({productLocation: '2dsphere'});
+ProductSchema.index({'deliveryOptions.personalPickup.pickupLocation': '2dsphere'});
 
 //If you do any pre save methods, and you use fat arrow syntax 'this' doesn't refer to the document.
 ProductSchema.pre('save', function (next) {

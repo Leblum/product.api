@@ -23,7 +23,7 @@ import { SupportingServicesBootstrap } from './config/supporting-services.bootst
 
 import methodOverride = require('method-override');
 import log = require('winston');
-import { authz } from "./controllers/authorization";
+import { Authz } from "./controllers/authorization";
 import path = require('path');
 import cors = require('cors')
 
@@ -198,7 +198,7 @@ class Application {
     this.express.use('/api/*', new routers.AuthenticationRouter().authMiddleware);
 
     // Basically the users can authenticate, and register, but much past that, and you're going to need an admin user to access our identity api.
-    this.express.use(CONST.ep.API + CONST.ep.V1, authz.permit('product:admin', 'admin'), new routers.ProductRouter().getRouter());
+    this.express.use(CONST.ep.API + CONST.ep.V1, Authz.permit('product:admin', 'admin', 'product:editor'), new routers.ProductRouter().getRouter());
   }
 
   // We want to return a json response that will at least be helpful for 

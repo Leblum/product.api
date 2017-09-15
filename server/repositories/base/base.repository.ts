@@ -7,6 +7,10 @@ export abstract class BaseRepository<IModelDoc extends IBaseModelDoc> implements
 
     protected abstract mongooseModelInstance: Model<IModelDoc>;
 
+    public async save(document: IModelDoc){
+        await document.save();
+    }
+
     public createFromInterface(model: IBaseModel): IModelDoc{
         return new this.mongooseModelInstance(model);
     }
@@ -16,7 +20,7 @@ export abstract class BaseRepository<IModelDoc extends IBaseModelDoc> implements
     }
 
     public getCollectionName(): string{
-        return this.mongooseModelInstance.collection.name
+        return this.mongooseModelInstance.collection.name;
     }
 
     public async single(id: string, populationArgument?: any): Promise<IModelDoc> {

@@ -17,7 +17,7 @@ export class ProductRouter extends BaseRouter {
 
     public getRouter(): Router {
         return super.getRouter()
-            .post(`${this.resource}/create-product-from-template`, async (request: Request, response: Response, next: NextFunction) => {
+            .post(`${this.resource}${CONST.ep.CREATE_FROM_TEMPLATE}/:id`, async (request: Request, response: Response, next: NextFunction) => {
                 await this.controller.CreateProductFromTemplate(request, response, next);
             });
     }

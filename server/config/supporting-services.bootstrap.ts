@@ -8,7 +8,6 @@ import * as identityApi from "superagent";
 const util = require('util');
 var bcrypt = require('bcrypt');
 import log = require('winston');
-import { AuthenticationUtil } from "../controllers/authentication.util";
 import { IdentityApiService } from "../services/identity.api.service";
 
 // This is where we're going to bootstrap other services that we need to interact with.
