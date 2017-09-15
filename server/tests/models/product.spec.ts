@@ -33,7 +33,7 @@ class ProductTest {
     }
 
     public static async after() {
-        //await Cleanup.clearDatabase();
+        await Cleanup.clearDatabase();
     }
 
     @test('Just setting up a test for testing initialization')
