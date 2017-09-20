@@ -1,12 +1,9 @@
 import { Router, Request, Response, RequestParamHandler, NextFunction, RequestHandler, Application } from 'express';
 import mongoose = require('mongoose');
 import { Schema, Model, Document } from 'mongoose';
-import { BaseController } from './base/base.controller';
 import { Config } from '../config/config';
 import { ITokenPayload, IBaseModelDoc } from '../models/';
 import { CONST } from "../constants";
-import { ProductRepository, IProductRepository } from "../repositories/index";
-import { IOwnership } from "../models/ownership.interface";
 import { ApiErrorHandler } from "../api-error-handler";
 
 const bcrypt = require('bcrypt');
