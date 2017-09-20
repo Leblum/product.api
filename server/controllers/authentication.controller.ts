@@ -12,27 +12,10 @@ import { ApiErrorHandler } from "../api-error-handler";
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-export class AuthenticationController extends BaseController {
+export class AuthenticationController {
 
     private saltRounds: Number = 5;
     private tokenExpiration: string = '24h';
-    public defaultPopulationArgument = null;
-    public rolesRequiringOwnership = [];
-    public isOwnershipRequired = false;
-
-    protected repository: IProductRepository = new ProductRepository();
-
-    public addOwnerships(request: Request, response: Response, next: NextFunction, modelDoc: IBaseModelDoc): IBaseModelDoc {
-        throw new Error("Method not implemented.");
-    }
-
-    public isOwner(request: Request, response: Response, next: NextFunction, document: IBaseModelDoc): boolean {
-        throw new Error("Method not implemented.");
-    }
-
-    constructor() {
-        super();
-    }
 
     public authMiddleware(request: Request, response: Response, next: NextFunction): Response {
         try {

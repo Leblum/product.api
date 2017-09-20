@@ -26,6 +26,7 @@ import log = require('winston');
 import { Authz } from "./controllers/authorization";
 import path = require('path');
 import cors = require('cors')
+import { AuthenticationController } from './controllers/authentication.controller';
 
 // Creates and configures an ExpressJS web server.
 class Application {
@@ -195,7 +196,7 @@ class Application {
     log.info('Initializing Routers');
 
     // Now we lock up the rest.
-    this.express.use('/api/*', new routers.AuthenticationRouter().authMiddleware);
+    this.express.use('/api/*', new AuthenticationController().authMiddleware);
 
     // Basically the users can authenticate, and register, but much past that, and you're going to need an admin user to access our identity api.
     this.express.use(CONST.ep.API + CONST.ep.V1, Authz.permit('product:admin', 'admin', 'product:editor'), new routers.ProductRouter().getRouter());
