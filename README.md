@@ -185,7 +185,7 @@ and in the server ->
 gulp watch
 npm run nm
 ```
-
+docker cloud push
 # Text indexes in mongodb
 
 At some point we're going to want to index various fields on the product table, so that we can allow searching, and that searching doesn't hurt 
