@@ -1,24 +1,29 @@
 import { mongoose } from '../config/database/database';
 import { Schema, Model, Document, model } from 'mongoose';
 import { IBaseModel, IBaseModelDoc } from "./index";
-import { EnumHelper, ProductType, PrimaryColor, OwnershipType } from "../enumerations";
+import { EnumHelper, ProductType, PrimaryColor, OwnershipType, ImageType } from "../enumerations";
 import { IOwnership } from "./ownership.interface";
 
 
 export interface IProduct extends IBaseModel {
+    // Add ownerships to the interface
+    ownerships?: [{
+        ownerId: string,
+        ownershipType: OwnershipType
+    }],
     displayName?: string,
     commonName?: string,
     shortDescription?: string,
     longDescription?: string,
     thumbnailDescription?: string,
-    type?: number,
+    type?: ProductType,
     category?: string,
     tags?: [string],
     isTemplate: boolean,
     isLocal?: boolean,
     masterProductId?: string,
     sku?: string,
-    primaryColor?: number,
+    primaryColor?: PrimaryColor,
     productLocation?: {
         type:string,
         coordinates: Array<number>
@@ -76,7 +81,7 @@ export interface IProduct extends IBaseModel {
         endDate?: Date,
     },
     images?: [{
-        type?: number,
+        type?: ImageType,
         url?: string,
         width?: number,
         height?: number,
@@ -168,12 +173,12 @@ const ProductSchema = new Schema({
     pricing: {
         supplier: {
             perStem: { type: Number },
-            markdownPercentage: { type: Number },
+            markdownPercentage: { type: Number, default: 0 },
             stemsPerBundle: { type: Number }
         },
         markupPercentage: { type: Number },
         industryPrice: { type: Number },
-        meanPrice: { type: Number }
+        meanPrice: { type: Number, default: 0 }
     },
     lastUpdated: { type: Date, default: Date.now },
     active: {
