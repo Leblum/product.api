@@ -200,6 +200,3 @@ Or you can create a text index over all string fields in a collection:
 db.collection.createIndex( { "$**": "text" } )
 
 Obviously when the time comes we'll want to put a text index just on the fields that we want to search over, and not all fields.
-
-AKIAI6N3HPHRV4DVP7JQ 
-zDFqAvTSTqjO5D2bOMTOcBdACzB80NWkE4z/cHNw
