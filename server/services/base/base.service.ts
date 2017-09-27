@@ -3,55 +3,124 @@ import { CONST } from "../../constants";
 import log = require('winston');
 
 import * as superagent from "superagent";
+import { IBaseModel } from '../../models/index';
 
 export abstract class BaseService {
 
-    protected static apiName: string;
-    protected static baseUrl: string;
-    protected static systemAuthToken: string;
+    protected apiName: string;
+    protected baseUrl: string;
+    protected endpoint: string;
 
-    public static async create(endpoint: string, body: any): Promise<superagent.Response> {
-        return await superagent
-            .post(`${this.baseUrl}${endpoint}`)
-            .set(CONST.TOKEN_HEADER_KEY, this.systemAuthToken)
-            .send(body)
-            .catch(err => this.errorHandler(err));
+    constructor(endpoint: string) {
+        this.endpoint = endpoint;
+    }
+
+    public async get<T extends IBaseModel>(id: string, query?: any): Promise<T> {
+        try {
+            const url = `${this.baseUrl}${this.endpoint}/${id}`;
+
+            const response = await superagent
+                .get(url)
+                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                .send(query);
+
+            return response.body;
+        } catch (err) { this.errorHandler(err) }
 
     }
 
-    public static async single(endpoint: string, query: any): Promise<superagent.Response> {
-        return await superagent
-            .post(`${this.baseUrl}${endpoint}${CONST.ep.common.QUERY}`)
-            .set(CONST.TOKEN_HEADER_KEY, this.systemAuthToken)
-            .send(query)
-            .catch(err => this.errorHandler(err));
+    public async getList<T extends IBaseModel>(query?: Object): Promise<T[]> {
+        try {
+            const url = `${this.baseUrl}${this.endpoint}${CONST.ep.common.QUERY}`;
+            const response = await superagent
+                .get(url)
+                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                .send(query);
+            return response.body;
+        } catch (err) { this.errorHandler(err) }
     }
 
-    public static async deleteSingle(endpoint: string, queryBody: any): Promise<superagent.Response> {
+    public async delete(id: string): Promise<any> {
+        try {
+            const url = `${this.baseUrl}${this.endpoint}/${id}`;
+            let response = await superagent
+                .delete(url)
+                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN));
+            return response.body;
+        } catch (err) { this.errorHandler(err) }
+    }
 
-        let queryResponse = await this.single(endpoint, queryBody);
+    public async deleteMany(query: Object): Promise<any> {
+        try {
+            const url = `${this.baseUrl}${this.endpoint}`;
+            let response = await superagent
+                .delete(url)
+                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                .send(query)
+            return response.body;
+        } catch (err) { this.errorHandler(err) }
+    }
 
-        // There should be only one model returned by this query, and if we don't get just one back
-        // we're not going to delete anything.
-        // TODO: I need to figure out how to handle error responses here.
-        if (queryResponse.status === 200 && queryResponse.body.length === 1 && queryResponse.body[0]._id) {
+    public async create<T extends IBaseModel>(T: T): Promise<T> {
+        try {
+            const url = `${this.baseUrl}${this.endpoint}`;
+            const response = await superagent
+                .post(url)
+                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                .send(T);
+            return response.body;
+        } catch (err) { this.errorHandler(err) }
+    }
+
+    public async update<T extends IBaseModel>(body: any, id: string): Promise<T> {
+        try {
+            const url = `${this.baseUrl}${this.endpoint}/${id}`;
+            const response = await superagent
+                .patch(url)
+                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                .send(body);
+            return response.body;
+        } catch (err) { this.errorHandler(err) }
+    }
+
+    public async createRaw(body: any): Promise<superagent.Response> {
+        try {
             return await superagent
-                .delete(`${this.baseUrl}${endpoint}/${queryResponse.body[0]._id}`)
-                .set(CONST.TOKEN_HEADER_KEY, this.systemAuthToken)
+                .post(`${this.baseUrl}${this.endpoint}`)
+                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                .send(body)
                 .catch(err => this.errorHandler(err));
-
-        }
+        } catch (err) { this.errorHandler(err) }
     }
 
-    public static async patch(endpoint: string, id: string, partialBody: any): Promise<superagent.Response> {
-        return await superagent
-            .patch(`${this.baseUrl}${endpoint}/${id}`)
-            .set(CONST.TOKEN_HEADER_KEY, this.systemAuthToken)
-            .send(partialBody)
-            .catch(err => this.errorHandler(err));
+    public async query(query: any): Promise<superagent.Response> {
+        try {
+            return await superagent
+                .post(`${this.baseUrl}${this.endpoint}${CONST.ep.common.QUERY}`)
+                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                .send(query)
+                .catch(err => this.errorHandler(err));
+        } catch (err) { this.errorHandler(err) }
     }
 
-    public static errorHandler(err: any): superagent.Response {
+    public async deleteSingle(queryBody: any): Promise<superagent.Response> {
+        try {
+            let queryResponse = await this.query(queryBody);
+
+            // There should be only one model returned by this query, and if we don't get just one back
+            // we're not going to delete anything.
+            // TODO: I need to figure out how to handle error responses here.
+            if (queryResponse.status === 200 && queryResponse.body.length === 1 && queryResponse.body[0]._id) {
+                return await superagent
+                    .delete(`${this.baseUrl}${this.endpoint}/${queryResponse.body[0]._id}`)
+                    .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                    .catch(err => this.errorHandler(err));
+
+            }
+        } catch (err) { this.errorHandler(err) }
+    }
+
+    public errorHandler(err: any): superagent.Response {
         if (err) {
             log.error(`There was an error calling out to the ${this.apiName}`, {
                 message: err.message ? err.message : 'null',

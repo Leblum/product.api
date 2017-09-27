@@ -12,5 +12,6 @@
     "isConsoleLoggingActive": true,
     "mandrillApiKey": "EEQCHdKzdFHYo4VNLdb3nw", // this is the test key for right now... switch to real
     "clientDistFolder": "dev",
-    "identityApiEndpoint": "https://dev.identity.leblum.io/api/v1"
+    "identityApiEndpoint": "https://dev.identity.leblum.io/api/v1",
+    "ProductImageBucketName": "dev-product-api-images"
 }

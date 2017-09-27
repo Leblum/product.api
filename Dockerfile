@@ -9,6 +9,9 @@ ENV NODE_ENV development
 # of the docker image
 RUN apk --no-cache add make gcc g++ python
 
+# This is so that sharp which is the image libarary we're using for building will install correctly on linux.
+RUN apk add vips-dev fftw-dev --update-cache --repository https://dl-3.alpinelinux.org/alpine/edge/testing/
+
 RUN npm i -g pm2
 
 RUN npm i -g gulp

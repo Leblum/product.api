@@ -12,5 +12,6 @@
     "isConsoleLoggingActive": true,
     "mandrillApiKey": "Zh8DlnQXZIW5urHG7f1Llw", // Integration always uses the test mandrill key, that way we don't have to worry about our test users.
     "clientDistFolder": "dev",
-    "identityApiEndpoint": "https://dev.identity.leblum.io/api/v1"
+    "identityApiEndpoint": "https://dev.identity.leblum.io/api/v1",
+    "ProductImageBucketName": "integration-product-api-images"
 }

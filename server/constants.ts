@@ -25,6 +25,7 @@ export const CONST = {
     MOMENT_DATE_FORMAT: 'YYYY-MM-DD h:mm:ss a Z',
     LEBLUM_API_Q_BACKPLANE: 'leblum-api-q-backplane',
     REQUEST_TOKEN_LOCATION: 'api-decoded-token',
+    SYSTEM_AUTH_TOKEN: 'system-auth-token',
     SALT_ROUNDS: 10,
     errorCodes: {
         EMAIL_TAKEN: 'EmailAlreadyTaken',
@@ -36,5 +37,6 @@ export const CONST = {
         PRODUCT_ADMIN_EMAIL: "integration.product.adminRole@leblum.com",
         PRODUCT_EDITOR_EMAIL: "integration.product.editorRole@leblum.com",
         ORGANIZATION_NAME: "IntegrationTestOrganization"
-    }
+    },
+    IMAGE_UPLOAD_PATH: './img-uploads/'
 }

@@ -27,6 +27,9 @@ import { Authz } from "./controllers/authorization";
 import path = require('path');
 import cors = require('cors')
 import { AuthenticationController } from './controllers/authentication.controller';
+import { MulterWrapper } from './multer.wrapper';
+import { ImageUploadController } from './controllers/index';
+import { IdentityApiService } from './services/identity.api.service';
 
 // Creates and configures an ExpressJS web server.
 class Application {
@@ -47,6 +50,7 @@ class Application {
     this.connectDatabase(); // Setup database connection
     this.seedSupportingServices();  // We want to make sure that anything this service needs exists in other services.
     this.loggingClientEndpoint();
+    this.authenticateSystemUser();
     this.middleware();   // Setup the middleware - compression, etc...
     this.secure();       // Turn on security measures
     this.swagger();      // Serve up swagger, this is before authentication, as swagger is open
@@ -59,6 +63,13 @@ class Application {
     this.server = this.express.listen(Config.active.get('port'), () => {
       log.info(`Listening on port: ${Config.active.get('port')}`);
     });
+  }
+
+  // At startup, we're going to automatically authenticate the system user, so we can use that token
+  // TODO figure out how we renew this token when it expires.
+  private async authenticateSystemUser(): Promise<void> {
+    const token = await new IdentityApiService(CONST.ep.AUTHENTICATE).authenticateSystemUser();
+    log.info(`System user has been authenticated.`);
   }
 
   // Here we're going to make sure that the environment is setup.  
@@ -169,6 +180,9 @@ class Application {
   private client(): void {
     log.info('Initializing Client');
 
+    // this allows you to see the files uploaded in dev http://localhost:8080/uploads/067e2ad8ca80503b9ae41c9c06855a9a-1afd01789a7015a436d35c6914236865-1493816227467.jpeg
+    this.express.use('/uploads', express.static(path.resolve(__dirname, '../img-uploads/')));
+
     this.express.use(express.static(path.join(__dirname, '../client/dist/' + Config.active.get('clientDistFolder') + '/')));
     this.express.use('*', express.static(path.join(__dirname, '../client/dist/' + Config.active.get('clientDistFolder') + '/index.html')));
   }
@@ -200,6 +214,11 @@ class Application {
 
     // Basically the users can authenticate, and register, but much past that, and you're going to need an admin user to access our identity api.
     this.express.use(CONST.ep.API + CONST.ep.V1, Authz.permit('product:admin', 'admin', 'product:editor'), new routers.ProductRouter().getRouter());
+    this.express.use(CONST.ep.API + CONST.ep.V1 + '/upload-images',
+      Authz.permit('product:admin', 'admin', 'product:editor'),
+      new MulterWrapper().uploader.array('file'),
+      new ImageUploadController().imageUploadMiddleware
+    );
   }
 
   // We want to return a json response that will at least be helpful for 

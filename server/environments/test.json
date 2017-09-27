@@ -10,5 +10,6 @@
     "returnCallStackOnError": true,
     "isConsoleLoggingActive": true,
     "clientDistFolder": "test",
-    "identityApiEndpoint": "https://test.identity.leblum.io/api/v1"
+    "identityApiEndpoint": "https://test.identity.leblum.io/api/v1",
+    "ProductImageBucketName": "test-product-api-images"
 }

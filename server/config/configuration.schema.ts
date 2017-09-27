@@ -84,6 +84,27 @@ public static convictSchema: convict.Config = convict({
       env: 'MANDRILL_API_KEY',
       sensitive: true
     },
+    AWSAccessKey:{
+      doc:'Access Key for S3',
+      format: String,
+      default: 'AKIAI6N3HPHRV4DVP7JQ',
+      env: 'AWS_ACCESS_KEY',
+      sensitive: true
+    },
+    AWSSecret:{
+      doc:'Access Secret for S3',
+      format: String,
+      default: 'zDFqAvTSTqjO5D2bOMTOcBdACzB80NWkE4z/cHNw',
+      env: 'AWS_S3_SECRET',
+      sensitive: true
+    },
+    ProductImageBucketName:{
+      doc:'Bucket where were uploading product images',
+      format: String,
+      default: 'dev-product-api-images',
+      env: 'PRODUCT_IMAGE_BUCKET_NAME',
+      sensitive: true
+    },
     clientDistFolder:{
       doc:'The client dist folder needs to be set, we build the docker image with all the client folders built.',
       format: String,

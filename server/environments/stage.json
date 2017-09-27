@@ -10,5 +10,6 @@
     "returnCallStackOnError": true,
     "isConsoleLoggingActive": true,
     "clientDistFolder": "stage",
-    "identityApiEndpoint": "https://stage.identity.leblum.io/api/v1"
+    "identityApiEndpoint": "https://stage.identity.leblum.io/api/v1",
+    "ProductImageBucketName": "stage-product-api-images"
 }

@@ -3,7 +3,7 @@ import { Config } from "./config";
 import { CONST } from "../constants";
 import { OrganizationType } from "../enumerations";
 
-import * as identityApi from "superagent";
+import * as superagent from "superagent";
 
 const util = require('util');
 var bcrypt = require('bcrypt');
@@ -12,6 +12,7 @@ import { IdentityApiService } from "../services/identity.api.service";
 
 // This is where we're going to bootstrap other services that we need to interact with.
 // In this case we're talking to the identity service, and we need to make sure that it has the roles that we need.
+// TODO clean this up so we use the IdentityApiService
 export class SupportingServicesBootstrap {
 
     public static async seed() {
@@ -21,7 +22,7 @@ export class SupportingServicesBootstrap {
     private static async seedIdentityApi() {
         // We need to get a system user token so authenticate with the system user creds first
         try {
-            const systemToken = await IdentityApiService.authenticateSystemUser();
+            const systemToken = await new IdentityApiService(CONST.ep.USERS).authenticateSystemUser();
 
             // Here we're going to seed the identity api with the roles that we require.
             this.seedRole('product:admin', 'Full control over products.', systemToken);
@@ -35,7 +36,7 @@ export class SupportingServicesBootstrap {
     private static async seedRole(roleName: string, description: string, systemToken: string) {
         try{
             // first make sure they don't exist.  So we're going to query the roles endpoint and see if they're there
-            const productUserRoleResponse = await identityApi
+            const productUserRoleResponse = await superagent
             .post(`${Config.active.get('identityApiEndpoint')}${CONST.ep.ROLES}${CONST.ep.common.QUERY}`)
             .set('x-access-token', systemToken)
             .send({
@@ -44,7 +45,7 @@ export class SupportingServicesBootstrap {
 
             if (productUserRoleResponse.body.length === 0) {
             // In the future we really need to figure out what permissions we give to each one of these.
-            await identityApi
+            await superagent
                 .post(`${Config.active.get('identityApiEndpoint')}${CONST.ep.ROLES}`)
                 .set('x-access-token', systemToken)
                 .send({
