@@ -58,7 +58,7 @@ export class MulterWrapper{
             }
             // Here we're trimming the filename down to 15 chars.  I don't want ridiculously long filenames.
             tokens[0] = tokens[0].trim().substring(0,Math.min(tokens[0].length,15))
-            cb(null,`${tokens[0]}-${raw.toString('hex')}-${Date.now()}.${mime.extension(file.mimetype)}`);
+            cb(null,`${tokens[0]}-${raw.toString('hex')}-${Date.now()}.${mime.getExtension(file.mimetype)}`);
         });
     }
 
