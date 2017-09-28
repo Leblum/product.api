@@ -3,12 +3,12 @@ import * as mime from 'mime';
 import * as multer from 'multer';
 import * as fs from 'fs';
 import * as path from 'path';
-import { CONST } from './constants';
+import { CONST } from '../constants';
 import * as log from 'winston';
-import { ApiErrorHandler } from './api-error-handler';
+import { ApiErrorHandler } from '../api-error-handler';
 
 
-export class MulterWrapper{
+export class MulterConfiguration{
     public constructor(){
         this.ensureUploadFolderExists();
     }
@@ -17,7 +17,7 @@ export class MulterWrapper{
         destination: function (req, file, cb) {
             cb(null, `${CONST.IMAGE_UPLOAD_PATH}`)
         },
-        filename: this.fileName
+        filename: this.fileName,
     });
 
     public uploader = multer({
@@ -64,7 +64,7 @@ export class MulterWrapper{
 
     public fileFilter(req, file, cb) {
         // accept image only
-        if (!file.originalname.match(/\.(jpg|jpeg|png|gif|svg|pdf|)$/)) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png|gif|svg|)$/)) {
             return cb(new Error('Only image files are allowed!'), false);
         }
         cb(null, true);

@@ -27,7 +27,7 @@ import { Authz } from "./controllers/authorization";
 import path = require('path');
 import cors = require('cors')
 import { AuthenticationController } from './controllers/authentication.controller';
-import { MulterWrapper } from './multer.wrapper';
+import { MulterConfiguration } from './config/multer.configuration';
 import { ImageUploadController } from './controllers/index';
 import { IdentityApiService } from './services/identity.api.service';
 
@@ -216,7 +216,7 @@ class Application {
     this.express.use(CONST.ep.API + CONST.ep.V1, Authz.permit('product:admin', 'admin', 'product:editor'), new routers.ProductRouter().getRouter());
     this.express.use(CONST.ep.API + CONST.ep.V1 + '/upload-images',
       Authz.permit('product:admin', 'admin', 'product:editor'),
-      new MulterWrapper().uploader.array('file'),
+      new MulterConfiguration().uploader.array('file'),
       new ImageUploadController().imageUploadMiddleware
     );
   }
