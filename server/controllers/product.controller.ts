@@ -54,10 +54,45 @@ export class ProductController extends BaseController {
         response.status(200).json(product.images);
 
         return await this.repository.save(product);
-      }else{
-         throw { message: "Product image not found.", status: 404 }; 
+      } else {
+        throw { message: "Product image not found.", status: 404 };
       }
 
+    } catch (err) { next(err); }
+  }
+
+  public async deleteImageGroup(request: Request, response: Response, next: NextFunction): Promise<IProductDoc> {
+    try {
+      const productId = await this.getId(request);
+      const orderToDelete = request && request.params ? request.params['orderNumber'] : null;
+      let product = await this.repository.single(productId);
+
+      //now we need to get the product image this request is referring to.
+      let imagesToRemove = product.images.filter((image) => {
+        return image.order == orderToDelete;
+      });
+
+      if (imagesToRemove.length > 0) {
+
+        for (var index = 0; index < imagesToRemove.length; index++) {
+          var image = imagesToRemove[index];
+
+          await AmazonS3Service.deleteFileFromS3(image.key);
+        }
+
+        product.images = product.images.filter((image) => {
+          return image.order != orderToDelete;
+        });
+
+        product = await this.repository.save(product);
+
+        response.status(200).json(product.images);
+
+        return product;
+
+      } else {
+        throw { message: "Product image order not found.", status: 404 };
+      }
     } catch (err) { next(err); }
   }
 

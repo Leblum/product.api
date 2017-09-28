@@ -13,6 +13,7 @@ export const CONST = {
         PRODUCT_TEMPLATES: '/product-templates',
         PRODUCTS: '/products',
         DELETE_IMAGE: '/delete-image',
+        DELETE_IMAGE_GROUP: '/delete-image-group',
         CREATE_FROM_TEMPLATE: '/create-product-from-template',
         client: {
         },
