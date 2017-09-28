@@ -19,6 +19,9 @@ export class ProductRouter extends BaseRouter {
         return super.getRouter()
             .post(`${this.resource}${CONST.ep.CREATE_FROM_TEMPLATE}/:id`, async (request: Request, response: Response, next: NextFunction) => {
                 await this.controller.CreateProductFromTemplate(request, response, next);
+            })
+            .delete(`${this.resource}${CONST.ep.DELETE_IMAGE}/:id/:imageId`, async (request: Request, response: Response, next: NextFunction) => {
+                await this.controller.deleteImage(request, response, next);
             });
     }
 }

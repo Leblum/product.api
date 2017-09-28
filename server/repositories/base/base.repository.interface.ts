@@ -3,7 +3,7 @@ import { SearchCriteria, IBaseModelDoc, IBaseModel } from "../../models/";
 
 export interface IBaseRepository<IModelDoc extends IBaseModelDoc> {
     
-    save(document: IModelDoc);
+    save(document: IModelDoc): Promise<IModelDoc>;
     createFromBody(body: object): IModelDoc;
     createFromInterface(model: IBaseModel): IModelDoc;
     getCollectionName(): string;

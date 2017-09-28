@@ -7,6 +7,7 @@ import { CONST } from '../constants';
 import { IProductRepository, ProductRepository } from "../repositories";
 import { OwnershipType } from "../enumerations";
 import { IOwnership } from "../models/ownership.interface";
+import { AmazonS3Service } from '../services/index';
 var bcrypt = require('bcrypt');
 
 export class ProductController extends BaseController {
@@ -23,12 +24,41 @@ export class ProductController extends BaseController {
 
   // This will add ownerships whenever a document is created.
   // Here we can later add supplier ID, and also check that supplier ID in the checking logic.
-  public addOwnerships(request: Request, response: Response, next: NextFunction, productDocument: IProductDoc ): void {
+  public addOwnerships(request: Request, response: Response, next: NextFunction, productDocument: IProductDoc): void {
     let currentToken: ITokenPayload = request[CONST.REQUEST_TOKEN_LOCATION];
     productDocument.ownerships = [{
       ownerId: currentToken.organizationId,
       ownershipType: OwnershipType.organization
     }];
+  }
+
+  public async deleteImage(request: Request, response: Response, next: NextFunction): Promise<IProductDoc> {
+    try {
+      const productId = await this.getId(request);
+      const productImageId = request && request.params ? request.params['imageId'] : null;
+      const product = await this.repository.single(productId);
+
+      //product.images = []; product.save();
+
+      //now we need to get the product image this request is referring to.
+      const imageIndex = product.images.findIndex((image) => {
+        return image._id == productImageId;
+      });
+
+      if (imageIndex >= 0) {
+
+        await AmazonS3Service.deleteFileFromS3(product.images[imageIndex].key);
+
+        product.images.splice(imageIndex, 1);
+
+        response.status(200).json(product.images);
+
+        return await this.repository.save(product);
+      }else{
+         throw { message: "Product image not found.", status: 404 }; 
+      }
+
+    } catch (err) { next(err); }
   }
 
   // For product documents we're going to test ownership based on organization id,
@@ -45,32 +75,32 @@ export class ProductController extends BaseController {
 
   public async CreateProductFromTemplate(request: Request, response: Response, next: NextFunction): Promise<IProductDoc> {
     try {
-        // Create a new product.  The false here at the end of the create request allows us to not send the product back in a response just yet.
-        // We need to get the product id off the product that was passed in, so that we can use it as our "master product id reference"
-        let templateId = this.getId(request);
-        let productTemplate: IProductDoc = await this.repository.single(templateId);
+      // Create a new product.  The false here at the end of the create request allows us to not send the product back in a response just yet.
+      // We need to get the product id off the product that was passed in, so that we can use it as our "master product id reference"
+      let templateId = this.getId(request);
+      let productTemplate: IProductDoc = await this.repository.single(templateId);
 
-        // This allows us to basically create a clone of the existing document.
-        productTemplate.isNew = true;
-        productTemplate._id = mongoose.Types.ObjectId();
+      // This allows us to basically create a clone of the existing document.
+      productTemplate.isNew = true;
+      productTemplate._id = mongoose.Types.ObjectId();
 
-        request.body = productTemplate;
+      request.body = productTemplate;
 
-        // Let the base class handle creation for us, but don't return the response back just yet.
-        // Ownership will also be changed, and created by the base class.
-        let newProduct: IProductDoc = await super.create(request, response, next, false) as IProductDoc;
+      // Let the base class handle creation for us, but don't return the response back just yet.
+      // Ownership will also be changed, and created by the base class.
+      let newProduct: IProductDoc = await super.create(request, response, next, false) as IProductDoc;
 
-        // Change the product to no longer be a template
-        newProduct.isTemplate = false;
-        newProduct.masterProductId = templateId;
+      // Change the product to no longer be a template
+      newProduct.isTemplate = false;
+      newProduct.masterProductId = templateId;
 
-        // Save the update to the database
-        await this.repository.save(newProduct);
+      // Save the update to the database
+      await this.repository.save(newProduct);
 
-        // Send the new product which is not a template back.
-        response.status(201).json(newProduct);
+      // Send the new product which is not a template back.
+      response.status(201).json(newProduct);
 
-        return newProduct;
+      return newProduct;
     } catch (err) { next(err); }
   }
 

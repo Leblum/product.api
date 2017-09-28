@@ -12,6 +12,7 @@ export const CONST = {
         ORGANIZATIONS: '/organizations',
         PRODUCT_TEMPLATES: '/product-templates',
         PRODUCTS: '/products',
+        DELETE_IMAGE: '/delete-image',
         CREATE_FROM_TEMPLATE: '/create-product-from-template',
         client: {
         },
@@ -38,5 +39,5 @@ export const CONST = {
         PRODUCT_EDITOR_EMAIL: "integration.product.editorRole@leblum.com",
         ORGANIZATION_NAME: "IntegrationTestOrganization"
     },
-    IMAGE_UPLOAD_PATH: './img-uploads/'
+    IMAGE_UPLOAD_PATH: './img-uploads/',
 }

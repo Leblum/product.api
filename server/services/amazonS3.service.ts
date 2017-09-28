@@ -53,9 +53,7 @@ export class AmazonS3Service{
     public static async cleanAws(rawImageFile: MulterFile, imageType: enums.ImageType){
         this.configureAws();
         
-        const s3 = this.configureS3(rawImageFile.mimetype);
-
-        await this.deleteFileFromS3(s3,this.variationName(imageType, rawImageFile));
+        await this.deleteFileFromS3(this.variationName(imageType, rawImageFile));
     }
 
     private static configureS3(mimeType: string): S3{
@@ -83,7 +81,9 @@ export class AmazonS3Service{
         return `${enums.ImageType[imageType]}-${rawImageFile.filename}`;
     }
 
-    public static async deleteFileFromS3(s3: S3, key: string): Promise<S3.DeleteObjectOutput>{
+    public static async deleteFileFromS3(key: string): Promise<S3.DeleteObjectOutput>{
+        this.configureAws();
+        const s3: S3 = this.configureS3(null)
         let s3data = await s3.deleteObject({
             Bucket: Config.active.get('ProductImageBucketName'),
             Key: key

@@ -191,7 +191,8 @@ const ProductSchema = new Schema({
         width: { type: Number },
         height: { type: Number },
         order: { type: Number },
-        isActive: { type: Boolean }
+        isActive: { type: Boolean },
+        key: {type: String}
     }],
     version: { type: String },
     stemAttributes: {
