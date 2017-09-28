@@ -92,7 +92,8 @@ export class ImageUploadController {
             height: sharpInfo.height,
             width: sharpInfo.width,
             url: `${Config.active.get('ProductImageURLLocationRoot')}${Config.active.get('ProductImageBucketName')}/${AmazonS3Service.variationName(type, file)}`,
-            order: order
+            order: order,
+            key: AmazonS3Service.variationName(type, file)
         });
         return product;
     }

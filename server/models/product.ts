@@ -85,7 +85,8 @@ export interface IProduct extends IBaseModel {
         width?: number,
         height?: number,
         order?: number,
-        isActive?: boolean
+        isActive?: boolean,
+        key?: string,
     }[],
     version?: string,
     stemAttributes?: {
