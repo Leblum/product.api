@@ -38,8 +38,6 @@ export class ProductController extends BaseController {
       const productImageId = request && request.params ? request.params['imageId'] : null;
       const product = await this.repository.single(productId);
 
-      //product.images = []; product.save();
-
       //now we need to get the product image this request is referring to.
       const imageIndex = product.images.findIndex((image) => {
         return image._id == productImageId;
@@ -47,13 +45,17 @@ export class ProductController extends BaseController {
 
       if (imageIndex >= 0) {
 
-        await AmazonS3Service.deleteFileFromS3(product.images[imageIndex].key);
+        product.images[imageIndex].variations.forEach(async (variation) => {
+          await AmazonS3Service.deleteFileFromS3(variation.key);
+        });
 
         product.images.splice(imageIndex, 1);
 
+        await this.repository.save(product);
+
         response.status(200).json(product.images);
 
-        return await this.repository.save(product);
+        return product;
       } else {
         throw { message: "Product image not found.", status: 404 };
       }
@@ -61,40 +63,40 @@ export class ProductController extends BaseController {
     } catch (err) { next(err); }
   }
 
-  public async deleteImageGroup(request: Request, response: Response, next: NextFunction): Promise<IProductDoc> {
-    try {
-      const productId = await this.getId(request);
-      const orderToDelete = request && request.params ? request.params['orderNumber'] : null;
-      let product = await this.repository.single(productId);
+  // public async deleteImageGroup(request: Request, response: Response, next: NextFunction): Promise<IProductDoc> {
+  //   try {
+  //     const productId = await this.getId(request);
+  //     const orderToDelete = request && request.params ? request.params['orderNumber'] : null;
+  //     let product = await this.repository.single(productId);
 
-      //now we need to get the product image this request is referring to.
-      let imagesToRemove = product.images.filter((image) => {
-        return image.order == orderToDelete;
-      });
+  //     //now we need to get the product image this request is referring to.
+  //     let imagesToRemove = product.images.filter((image) => {
+  //       return image.order == orderToDelete;
+  //     });
 
-      if (imagesToRemove.length > 0) {
+  //     if (imagesToRemove.length > 0) {
 
-        for (var index = 0; index < imagesToRemove.length; index++) {
-          var image = imagesToRemove[index];
+  //       for (var index = 0; index < imagesToRemove.length; index++) {
+  //         var image = imagesToRemove[index];
 
-          await AmazonS3Service.deleteFileFromS3(image.key);
-        }
+  //         await AmazonS3Service.deleteFileFromS3(image.key);
+  //       }
 
-        product.images = product.images.filter((image) => {
-          return image.order != orderToDelete;
-        });
+  //       product.images = product.images.filter((image) => {
+  //         return image.order != orderToDelete;
+  //       });
 
-        product = await this.repository.save(product);
+  //       product = await this.repository.save(product);
 
-        response.status(200).json(product.images);
+  //       response.status(200).json(product.images);
 
-        return product;
+  //       return product;
 
-      } else {
-        throw { message: "Product image order not found.", status: 404 };
-      }
-    } catch (err) { next(err); }
-  }
+  //     } else {
+  //       throw { message: "Product image order not found.", status: 404 };
+  //     }
+  //   } catch (err) { next(err); }
+  // }
 
   // For product documents we're going to test ownership based on organization id,
   // although we need to be testing based on supplier id as well.

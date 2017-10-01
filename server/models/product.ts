@@ -3,6 +3,8 @@ import { Schema, Model, Document, model } from 'mongoose';
 import { IBaseModel, IBaseModelDoc } from "./index";
 import * as enums from "../enumerations";
 import { IOwnership } from "./ownership.interface";
+import { IImage } from './image.interface';
+
 
 export interface IProduct extends IBaseModel {
     ownerships?: {
@@ -78,16 +80,7 @@ export interface IProduct extends IBaseModel {
         startDate?: Date,
         endDate?: Date,
     },
-    images?: {
-        _id?: string,
-        type?: enums.ImageType,
-        url?: string,
-        width?: number,
-        height?: number,
-        order?: number,
-        isActive?: boolean,
-        key?: string,
-    }[],
+    images?: IImage[],
     version?: string,
     stemAttributes?: {
         version?: string,
@@ -186,13 +179,15 @@ const ProductSchema = new Schema({
         endDate: { type: Date },
     },
     images: [{
-        type: { type: Number, enum: [enums.EnumHelper.getValuesFromEnum(enums.ProductType)] },
-        url: { type: String },
-        width: { type: Number },
-        height: { type: Number },
         order: { type: Number },
         isActive: { type: Boolean },
-        key: {type: String}
+        variations: [{
+            type: { type: Number, enum: [enums.EnumHelper.getValuesFromEnum(enums.ProductType)] },
+            url: { type: String },
+            width: { type: Number },
+            height: { type: Number },
+            key: {type: String},
+        }],
     }],
     version: { type: String },
     stemAttributes: {

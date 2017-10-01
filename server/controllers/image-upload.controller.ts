@@ -16,6 +16,7 @@ import { ProductRepository } from '../repositories/index';
 import * as fs from 'async-file';
 import { MulterFile } from '../models';
 import { AmazonS3Service } from '../services/index';
+import { IImage, IImageVariation } from '../models/image.interface';
 
 export class ImageUploadController {
 
@@ -36,7 +37,7 @@ export class ImageUploadController {
             const rawImageFile = request.files[0] as MulterFile;
             try {
                 //Now we go get the product
-                const product = await new ProductRepository().single(request.body.relatedId);
+                const product = await new ProductRepository().single(request.params['id']);
 
                 // Create image variations
                 const raw = await this.generateVariation(enums.ImageType.raw, rawImageFile, response);
@@ -49,13 +50,26 @@ export class ImageUploadController {
                 // figure out what the maximum product image order number is, and add one to it. 
                 const nextOrderNum = this.getNextOrderNumber(product);
 
+                let image: IImage = {
+                    isActive: true,
+                    order: nextOrderNum,
+                    variations: new Array<IImageVariation>()
+                }
+
                 // Add the product images.
-                this.updateProductImagesArray(product, rawImageFile, raw, enums.ImageType.raw, nextOrderNum);
-                this.updateProductImagesArray(product, rawImageFile, thumb, enums.ImageType.thumbnail, nextOrderNum);
-                this.updateProductImagesArray(product, rawImageFile, icon, enums.ImageType.icon, nextOrderNum);
-                this.updateProductImagesArray(product, rawImageFile, small, enums.ImageType.small, nextOrderNum);
-                this.updateProductImagesArray(product, rawImageFile, medium, enums.ImageType.medium, nextOrderNum);
-                this.updateProductImagesArray(product, rawImageFile, large, enums.ImageType.large, nextOrderNum);
+                this.addVariation(image, rawImageFile, raw, enums.ImageType.raw, nextOrderNum);
+                this.addVariation(image, rawImageFile, thumb, enums.ImageType.thumbnail, nextOrderNum);
+                this.addVariation(image,  rawImageFile, icon, enums.ImageType.icon, nextOrderNum);
+                this.addVariation(image, rawImageFile, small, enums.ImageType.small, nextOrderNum);
+                this.addVariation(image, rawImageFile, medium, enums.ImageType.medium, nextOrderNum);
+                this.addVariation(image, rawImageFile, large, enums.ImageType.large, nextOrderNum);
+
+                // If this is the first image, we're going to create a new array.
+                if(!product.images){
+                    product.images = new Array<IImage>();
+                }
+
+                product.images.push(image);
 
                 // Save the updated product.
                 const updatedProduct = await new ProductRepository().save(product);
@@ -85,17 +99,15 @@ export class ImageUploadController {
         return 0;
     }
 
-    public updateProductImagesArray(product: IProduct, file: MulterFile, sharpInfo: sharp.OutputInfo, type: enums.ImageType, order: number, ): IProduct {
-        product.images.push({
-            isActive: true,
+    public addVariation(image: IImage, file: MulterFile, sharpInfo: sharp.OutputInfo, type: enums.ImageType, order: number): IImage {
+        image.variations.push({
             type: type,
             height: sharpInfo.height,
             width: sharpInfo.width,
             url: `${Config.active.get('ProductImageURLLocationRoot')}${Config.active.get('ProductImageBucketName')}/${AmazonS3Service.variationName(type, file)}`,
-            order: order,
             key: AmazonS3Service.variationName(type, file)
         });
-        return product;
+        return image;
     }
 
     public async generateVariation(imageType: enums.ImageType, rawImageFile: MulterFile, response: Response, width: number = null, height: number = null, quality: number = 80): Promise<sharp.OutputInfo | any> {

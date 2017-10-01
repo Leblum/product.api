@@ -22,9 +22,6 @@ export class ProductRouter extends BaseRouter {
             })
             .delete(`${this.resource}${CONST.ep.DELETE_IMAGE}/:id/:imageId`, async (request: Request, response: Response, next: NextFunction) => {
                 await this.controller.deleteImage(request, response, next);
-            })
-            .delete(`${this.resource}${CONST.ep.DELETE_IMAGE_GROUP}/:id/:orderNumber`, async (request: Request, response: Response, next: NextFunction) => {
-                await this.controller.deleteImageGroup(request, response, next);
             });
     }
 }
