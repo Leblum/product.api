@@ -48,7 +48,7 @@ export class ImageUploadController {
                 const large = await this.generateVariation(enums.ImageType.large, rawImageFile, response, 1024);
 
                 // figure out what the maximum product image order number is, and add one to it. 
-                const nextOrderNum = this.getNextOrderNumber(product);
+                const nextOrderNum = this.getNextOrderNumber(product) + 10;
 
                 let image: IImage = {
                     isActive: true,
