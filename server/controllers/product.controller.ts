@@ -74,14 +74,17 @@ export class ProductController extends BaseController {
 
         if (!product) { throw { message: "Item Not Found", status: 404 }; }
 
+        // These really wordy for loops are needed, because those mongoose arrays don't always behave with a foreach.
         if (product && product.images) {
-          product.images.forEach(image => {
-            if (image.variations) {
-              image.variations.forEach(async (variation) => {
+          for (var i = 0; i < product.images.length; i++) {
+            var image = product.images[i];
+            if(image.variations && image.variations.length > 0){
+              for (var j = 0; j < image.variations.length; j++) {
+                var variation = image.variations[j];
                 await AmazonS3Service.deleteFileFromS3(variation.key);
-              })
+              }
             }
-          });
+          }
         }
 
         await super.destroy(request, response, next, true);

@@ -15,6 +15,7 @@ export const CONST = {
         DELETE_IMAGE: '/delete-image',
         DELETE_IMAGE_GROUP: '/delete-image-group',
         CREATE_FROM_TEMPLATE: '/create-product-from-template',
+        UPLOAD_IMAGES: '/upload-images',
         client: {
         },
         common:{

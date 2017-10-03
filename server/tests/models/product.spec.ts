@@ -144,6 +144,7 @@ class ProductTest {
         return;
     }
 
+
     @test('should return a 404 on delete when the ID isnt there')
     public async onDeleteWithoutID404() {
         let response = await api
@@ -402,4 +403,27 @@ class ProductTest {
         return createResponse.body._id;
     }
 
+    
+    @test('create a product, add images, delete should delete images')
+    public async deleteProductWithImages() {
+        let createdId = await this.createProductTemplate(productAdminToken);
+
+        // Now we need to post a test image. 
+        // './assets/testImage.jpg'
+        let uploadResponse =  await api.post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}${CONST.ep.UPLOAD_IMAGES}/${createdId}`)
+        .set("x-access-token", systemAuthToken)
+        .attach('file', './server/tests/assets/testImage.jpg');
+
+        expect(uploadResponse.status).to.equal(200);
+
+        let response = await api
+            .delete(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.PRODUCTS}/${createdId}`)
+            .set("x-access-token", productAdminToken);
+
+        expect(response.status).to.equal(200);
+        expect(response.body).to.have.property('ItemRemoved');
+        expect(response.body).to.have.property('ItemRemovedId');
+        expect(response.body.ItemRemovedId).to.be.equal(createdId);
+        return;
+    }
 }
