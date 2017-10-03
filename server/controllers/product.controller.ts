@@ -1,4 +1,4 @@
-import { IProductDoc, Product, ITokenPayload, IBaseModel, IProduct } from '../models';
+import { IProductDoc, Product, ITokenPayload, IBaseModel, IProduct, IBaseModelDoc } from '../models';
 import { Router, Request, Response, RequestParamHandler, NextFunction, RequestHandler } from 'express';
 import mongoose = require('mongoose');
 import { Schema, Model, Document } from 'mongoose';
@@ -8,6 +8,7 @@ import { IProductRepository, ProductRepository } from "../repositories";
 import { OwnershipType } from "../enumerations";
 import { IOwnership } from "../models/ownership.interface";
 import { AmazonS3Service } from '../services/index';
+import * as log from 'winston';
 var bcrypt = require('bcrypt');
 
 export class ProductController extends BaseController {
@@ -60,6 +61,33 @@ export class ProductController extends BaseController {
         throw { message: "Product image not found.", status: 404 };
       }
 
+    } catch (err) { next(err); }
+  }
+
+  public async destroy(request: Request, response: Response, next: NextFunction, sendResponse: boolean = true): Promise<IProductDoc> {
+    try {
+      if (await super.isModificationAllowed(request, response, next)) {
+
+        // First we go out and get the model from the database
+        const productId = await this.getId(request);
+        const product = await this.repository.single(productId);
+
+        if (!product) { throw { message: "Item Not Found", status: 404 }; }
+
+        if (product && product.images) {
+          product.images.forEach(image => {
+            if (image.variations) {
+              image.variations.forEach(async (variation) => {
+                await AmazonS3Service.deleteFileFromS3(variation.key);
+              })
+            }
+          });
+        }
+
+        await super.destroy(request, response, next, true);
+
+        return product;
+      }
     } catch (err) { next(err); }
   }
 

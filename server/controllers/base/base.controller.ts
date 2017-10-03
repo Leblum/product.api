@@ -113,17 +113,20 @@ export abstract class BaseController {
         } catch (err) { next(err); }
     }
 
-    public async destroy(request: Request, response: Response, next: NextFunction): Promise<IBaseModelDoc> {
+    public async destroy(request: Request, response: Response, next: NextFunction, sendResponse: boolean = true): Promise<IBaseModelDoc> {
         try {
             if (await this.isModificationAllowed(request, response, next)) {
                 let deletedModel = await this.repository.destroy(this.getId(request));
 
                 if (!deletedModel) { throw { message: "Item Not Found", status: 404 }; }
 
-                response.json({
-                    ItemRemovedId: deletedModel.id,
-                    ItemRemoved: deletedModel,
-                });
+                if(sendResponse){
+                    response.json({
+                        ItemRemovedId: deletedModel.id,
+                        ItemRemoved: deletedModel,
+                    });
+                }
+
                 log.info(`Removed a: ${this.repository.getCollectionName()}, ID: ${this.getId(request)}`);
 
                 return deletedModel;
