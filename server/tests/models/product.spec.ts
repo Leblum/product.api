@@ -22,14 +22,18 @@ class ProductTest {
     // First we need to get some users to work with from the identity service
     public static before(done) {
         console.log('Testing products');
-        App.server.on('dbConnected', async () => {
-            await Cleanup.clearDatabase();
-            await DatabaseBootstrap.seed();
+        // This code should only be called if this test is run as a single test.  When run in the suite along with
+        // bootstrap.util.spec this code is run by the bootstrap spec.
+        // App.server.on('dbConnected', async () => {
+        //     await Cleanup.clearDatabase();
+        //     await DatabaseBootstrap.seed();
 
-            // This will create, 2 users, an organization, and add the users to the correct roles.
-            await AuthenticationTestUtility.createIdentityApiTestData();
-            done();
-        });
+        //     // This will create, 2 users, an organization, and add the users to the correct roles.
+        //     await AuthenticationTestUtility.createIdentityApiTestData();
+        //     done();
+        // });
+        //This done should be commented if you're going to run this as suite.only()
+        done();
     }
 
     public static async after() {

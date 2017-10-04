@@ -4,6 +4,7 @@ import { Request, Response, RequestHandler, } from 'express';
 import { RequestHandlerParams, NextFunction } from 'express-serve-static-core';
 import { BaseRouter } from './base/base.router';
 import { CONST } from '../constants';
+import { Authz } from '../controllers/authorization';
 
 export class ProductRouter extends BaseRouter {
     public router: Router = Router();
@@ -16,7 +17,7 @@ export class ProductRouter extends BaseRouter {
     }
 
     public getRouter(): Router {
-        return super.getRouter()
+        return super.getRouter().all(`${this.resource}`, Authz.permit(CONST.PRODUCT_ADMIN_ROLE, CONST.ADMIN_ROLE, CONST.PRODUCT_EDITOR_ROLE))
             .post(`${this.resource}${CONST.ep.CREATE_FROM_TEMPLATE}/:id`, async (request: Request, response: Response, next: NextFunction) => {
                 await this.controller.CreateProductFromTemplate(request, response, next);
             })

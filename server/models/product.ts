@@ -11,6 +11,7 @@ export interface IProduct extends IBaseModel {
         ownerId: string,
         ownershipType: enums.OwnershipType
     }[],
+    supplierId?: string
     displayName?: string,
     commonName?: string,
     shortDescription?: string,
@@ -75,7 +76,6 @@ export interface IProduct extends IBaseModel {
         industryPrice?: number,
         meanPrice?: number
     },
-    lastUpdated?: Date,
     active?: {
         startDate?: Date,
         endDate?: Date,
@@ -173,7 +173,6 @@ const ProductSchema = new Schema({
         industryPrice: { type: Number },
         meanPrice: { type: Number, default: 0 }
     },
-    lastUpdated: { type: Date, default: Date.now },
     active: {
         startDate: { type: Date },
         endDate: { type: Date },

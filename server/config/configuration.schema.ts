@@ -112,6 +112,20 @@ public static convictSchema: convict.Config = convict({
       env: 'PRODUCT_IMAGE_URL_LOCATION_ROOT',
       sensitive: true
     },
+    SupplierImageBucketName:{
+      doc:'Bucket where were uploading supplier images/logos etc...',
+      format: String,
+      default: 'dev-supplier-api-images',
+      env: 'SUPPLIER_IMAGE_BUCKET_NAME',
+      sensitive: true
+    },
+    SupplierImageURLLocationRoot:{
+      doc:'This is the root of the url that well use whenever a supplier image is added.',
+      format: String,
+      default: 'https://s3.us-east-2.amazonaws.com/',
+      env: 'SUPPLIER_IMAGE_URL_LOCATION_ROOT',
+      sensitive: true
+    },
     clientDistFolder:{
       doc:'The client dist folder needs to be set, we build the docker image with all the client folders built.',
       format: String,

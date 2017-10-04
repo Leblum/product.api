@@ -11,5 +11,6 @@
     "isConsoleLoggingActive": true,
     "clientDistFolder": "test",
     "identityApiEndpoint": "https://test.identity.leblum.io/api/v1",
-    "ProductImageBucketName": "test-product-api-images"
+    "ProductImageBucketName": "test-product-api-images",
+    "SupplierImageBucketName": "test-supplier-api-images"
 }

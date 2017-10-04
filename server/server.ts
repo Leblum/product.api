@@ -213,9 +213,10 @@ class Application {
     this.express.use('/api/*', new AuthenticationController().authMiddleware);
 
     // Basically the users can authenticate, and register, but much past that, and you're going to need an admin user to access our identity api.
-    this.express.use(CONST.ep.API + CONST.ep.V1, Authz.permit('product:admin', 'admin', 'product:editor'), new routers.ProductRouter().getRouter());
+    this.express.use(CONST.ep.API + CONST.ep.V1, new routers.ProductRouter().getRouter());
+    this.express.use(CONST.ep.API + CONST.ep.V1, new routers.SupplierRouter().getRouter());
     this.express.use(CONST.ep.API + CONST.ep.V1 + `${CONST.ep.PRODUCTS}${CONST.ep.UPLOAD_IMAGES}/:id`,
-      Authz.permit('product:admin', 'admin', 'product:editor'),
+      Authz.permit(CONST.PRODUCT_ADMIN_ROLE, CONST.ADMIN_ROLE, CONST.PRODUCT_EDITOR_ROLE),
       new MulterConfiguration().uploader.array('file'),
       new ImageUploadController().imageUploadMiddleware
     );

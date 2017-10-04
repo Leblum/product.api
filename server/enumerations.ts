@@ -25,6 +25,30 @@ export enum ImageType{
     raw = 6
 }
 
+export enum AddressType{
+    pickup = 1,
+    business = 2,
+    billing = 3,
+}
+
+export enum EmailType{
+    pickup = 1,
+    business = 2,
+    billing = 3,
+}
+
+export enum ContactType{
+    pickup = 1,
+    business = 2,
+    billing = 3,
+}
+
+export enum PhoneType{
+    pickup = 1,
+    business = 2,
+    billing = 3,
+}
+
 export enum PrimaryColor{
     red = 1,
     blue = 2,

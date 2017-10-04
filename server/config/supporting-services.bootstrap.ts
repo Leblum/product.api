@@ -27,6 +27,8 @@ export class SupportingServicesBootstrap {
             // Here we're going to seed the identity api with the roles that we require.
             this.seedRole('product:admin', 'Full control over products.', systemToken);
             this.seedRole('product:editor', 'Creates products from templates, can edit products, no editing templates', systemToken);
+            this.seedRole('supplier:admin', 'Full control over suppliers.', systemToken);
+            this.seedRole('supplier:editor', 'Can edit thier own supplier details, but cant delete other suppliers', systemToken);
         }
         catch (err) {
             this.errorHandler(err);

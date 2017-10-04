@@ -1,7 +1,7 @@
 //During the test the env variable is set to test
 import { Database } from '../config/database/database';
 import { App, server } from '../server-entry';
-import { Product, IProduct} from '../models';
+import { Product, IProduct, Supplier } from '../models';
 import { Config } from '../config/config';
 import mongoose = require('mongoose');
 
@@ -20,6 +20,7 @@ export class Cleanup {
             && Database.databaseName.includes('integration')
         ) {
             await Product.remove({});
+            await Supplier.remove({});
         }
         else {
             throw ('The clear database method is trying to be run against a database that isnt integration');

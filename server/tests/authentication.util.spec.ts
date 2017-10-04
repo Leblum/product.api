@@ -19,6 +19,8 @@ const should = chai.should();
 export let systemAuthToken: string;
 export let productAdminToken: string;
 export let productEditorToken: string;
+export let supplierAdminToken: string;
+export let supplierEditorToken: string;
 
 // We need to rename this so it doesn't collide with the authentication utility in the controllers folder.
 export class AuthenticationTestUtility {
@@ -35,12 +37,20 @@ export class AuthenticationTestUtility {
 
             // Now we have the system credentials.  it's time to clear out anything that we might want to.
             // first up lets delete users that we might have created.
-            const deleteAdminUserResponse = await new IdentityApiService(CONST.ep.USERS).deleteSingle({
+           await new IdentityApiService(CONST.ep.USERS).deleteSingle({
                 "email": CONST.testing.PRODUCT_ADMIN_EMAIL
             });
 
-            const deleteEditorUserResponse = await new IdentityApiService(CONST.ep.USERS).deleteSingle({
+           await new IdentityApiService(CONST.ep.USERS).deleteSingle({
                 "email": CONST.testing.PRODUCT_EDITOR_EMAIL
+            });
+
+            await new IdentityApiService(CONST.ep.USERS).deleteSingle({
+                "email": CONST.testing.SUPPLIER_EDITOR_EMAIL
+            });
+
+            await new IdentityApiService(CONST.ep.USERS).deleteSingle({
+                "email": CONST.testing.SUPPLIER_ADMIN_EMAIL
             });
 
             // Now let's delete the organization we created for testing.
@@ -58,18 +68,10 @@ export class AuthenticationTestUtility {
         try {
             await this.cleanupIdentityApi();
             //We're going to create 2 users for each of the different roles.  We'll still link them to the same organization
-            const adminUserRes = await new IdentityApiService(CONST.ep.USERS).registerUser({
-                "firstName": "Dave",
-                "lastName": "Brown",
-                "email": CONST.testing.PRODUCT_ADMIN_EMAIL,
-                "password": "test354435"
-            });
-            const editorUserRes = await new IdentityApiService(CONST.ep.USERS).registerUser({
-                "firstName": "Dave",
-                "lastName": "Brown",
-                "email": CONST.testing.PRODUCT_EDITOR_EMAIL,
-                "password": "test354435"
-            });
+            const productAdminId = await this.registerUser(CONST.testing.PRODUCT_ADMIN_EMAIL);
+            const productEditorId = await this.registerUser(CONST.testing.PRODUCT_EDITOR_EMAIL);
+            const supAdminId = await this.registerUser(CONST.testing.SUPPLIER_ADMIN_EMAIL);
+            const supEditorId = await this.registerUser(CONST.testing.SUPPLIER_EDITOR_EMAIL);
 
             // Create the organization we'll use for testing
             let orgResponse = await new IdentityApiService(CONST.ep.ORGANIZATIONS).createRaw({
@@ -77,40 +79,52 @@ export class AuthenticationTestUtility {
                 "isSystem": false,
                 "type": 3,
                 "users": [
-                    adminUserRes.body._id,
-                    editorUserRes.body._id
+                    productAdminId,
+                    productEditorId,
+                    supAdminId,
+                    supEditorId
                 ]
             });
 
             // So we're going to issue a patch request to update the roles array on our new users
             // find me 2 different roles.  I want one role that was the 'product:owner', and one that was 'product:editor'
-            let productAdminRoleResponse = await new IdentityApiService(CONST.ep.ROLES).query(
-                {
-                    "name": CONST.PRODUCT_ADMIN_ROLE
-                });
-            let productEditorRoleResponse = await new IdentityApiService(CONST.ep.ROLES).query(
-                {
-                    "name": CONST.PRODUCT_EDITOR_ROLE
-                });
-
-            // Patch the user with the roles we found.
-            const adminResponse = await new IdentityApiService(CONST.ep.USERS).update(
-                {
-                    "roles": productAdminRoleResponse.body
-                },adminUserRes.body._id);
-
-
-            const editorResponse = await new IdentityApiService(CONST.ep.USERS).update( {
-                "roles": productEditorRoleResponse.body
-            }, editorUserRes.body._id);
+            await this.addRolesToUser(CONST.PRODUCT_ADMIN_ROLE, productAdminId);
+            await this.addRolesToUser(CONST.PRODUCT_EDITOR_ROLE, productEditorId);
+            await this.addRolesToUser(CONST.SUPPLIER_ADMIN_ROLE, supAdminId);
+            await this.addRolesToUser(CONST.SUPPLIER_EDITOR_ROLE, supEditorId);
 
             // Now we can use these tokens when we call back out to the product api during testing.
-            productAdminToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.PRODUCT_ADMIN_EMAIL,"test354435");
-            productEditorToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.PRODUCT_EDITOR_EMAIL,"test354435");
+            productAdminToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.PRODUCT_ADMIN_EMAIL, "test354435");
+            productEditorToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.PRODUCT_EDITOR_EMAIL, "test354435");
+            supplierEditorToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.SUPPLIER_EDITOR_EMAIL, "test354435");
+            supplierAdminToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.SUPPLIER_ADMIN_EMAIL, "test354435");
 
         } catch (err) {
             this.handleTestError(err);
         }
+    }
+
+    private static async registerUser(email:string): Promise<string>{
+        const userResponse = await new IdentityApiService(CONST.ep.USERS).registerUser({
+            "firstName": "Dave",
+            "lastName": "Brown",
+            "email": email,
+            "password": "test354435"
+        });
+
+        return userResponse.body._id;
+    }
+
+    private static async addRolesToUser(role: string, userId: string) {
+        let roleResponse = await new IdentityApiService(CONST.ep.ROLES).query(
+            {
+                "name": role
+            });
+
+        const adminResponse = await new IdentityApiService(CONST.ep.USERS).update(
+            {
+                "roles": roleResponse.body
+            }, userId);
     }
 
     private static handleTestError(err: any): void {

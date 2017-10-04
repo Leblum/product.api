@@ -12,6 +12,7 @@ export const CONST = {
         ORGANIZATIONS: '/organizations',
         PRODUCT_TEMPLATES: '/product-templates',
         PRODUCTS: '/products',
+        SUPPLIERS: '/suppliers',
         DELETE_IMAGE: '/delete-image',
         DELETE_IMAGE_GROUP: '/delete-image-group',
         CREATE_FROM_TEMPLATE: '/create-product-from-template',
@@ -23,8 +24,11 @@ export const CONST = {
         }
     },
     TOKEN_HEADER_KEY: "x-access-token",
+    ADMIN_ROLE: 'admin',
     PRODUCT_ADMIN_ROLE: 'product:admin',
     PRODUCT_EDITOR_ROLE: 'product:editor',
+    SUPPLIER_EDITOR_ROLE: 'supplier:editor',
+    SUPPLIER_ADMIN_ROLE: 'supplier:admin',
     MOMENT_DATE_FORMAT: 'YYYY-MM-DD h:mm:ss a Z',
     LEBLUM_API_Q_BACKPLANE: 'leblum-api-q-backplane',
     REQUEST_TOKEN_LOCATION: 'api-decoded-token',
@@ -39,6 +43,8 @@ export const CONST = {
     testing:{
         PRODUCT_ADMIN_EMAIL: "integration.product.adminRole@leblum.com",
         PRODUCT_EDITOR_EMAIL: "integration.product.editorRole@leblum.com",
+        SUPPLIER_ADMIN_EMAIL: "integration.supplier.adminRole@leblum.com",
+        SUPPLIER_EDITOR_EMAIL: "integration.supplier.editorRole@leblum.com",
         ORGANIZATION_NAME: "IntegrationTestOrganization"
     },
     IMAGE_UPLOAD_PATH: './img-uploads/',

@@ -13,5 +13,6 @@
     "mandrillApiKey": "EEQCHdKzdFHYo4VNLdb3nw", // this is the test key for right now... switch to real
     "clientDistFolder": "dev",
     "identityApiEndpoint": "https://dev.identity.leblum.io/api/v1",
-    "ProductImageBucketName": "dev-product-api-images"
+    "ProductImageBucketName": "dev-product-api-images",
+    "SupplierImageBucketName": "dev-supplier-api-images"
 }
