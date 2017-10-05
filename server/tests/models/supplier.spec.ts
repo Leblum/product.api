@@ -52,6 +52,7 @@ class SupplierTest {
             isActive: true,
             isApproved: false,
             name: 'JRose Magic Flowers',
+            slug: 'jrose',
         }
 
         let response = await api

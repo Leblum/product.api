@@ -43,6 +43,11 @@ export enum ContactType{
     billing = 3,
 }
 
+export enum TeamMemberType{
+    member =1,
+    owner =2,
+}
+
 export enum PhoneType{
     pickup = 1,
     business = 2,
