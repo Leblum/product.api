@@ -23,7 +23,7 @@ export interface ISupplier extends IBaseModel {
     pickupEmail?: string,
     isApproved: boolean,
     isActive: boolean,
-    teamMembers: ITeamMember[],
+    teamMembers?: ITeamMember[],
 }
 
 export interface ISupplierDoc extends ISupplier, IBaseModelDoc {
@@ -33,7 +33,7 @@ export interface ISupplierDoc extends ISupplier, IBaseModelDoc {
 const SupplierSchema = new Schema({
     ownerships: [{
         _id: { auto: false },
-        ownerId: { type: String },
+        ownerId:  { type: Schema.Types.ObjectId },
         ownershipType: { type: Number, enum: [enums.EnumHelper.getValuesFromEnum(enums.OwnershipType)] },
     }],
     name: { type: String },
@@ -64,7 +64,7 @@ const SupplierSchema = new Schema({
         zip: { type: String },
     },
     teamMembers: [{
-        userId: {type: String},
+        userId:  { type: Schema.Types.ObjectId },
         isApproved: {type: Boolean},
         memberType: { type: Number, enum: [enums.EnumHelper.getValuesFromEnum(enums.TeamMemberType)] },
     }],

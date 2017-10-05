@@ -3,7 +3,7 @@ import { App, server } from '../server-entry';
 import { Supplier, ISupplier, ITokenPayload } from '../models';
 import { Config } from '../config/config';
 import { CONST } from "../constants";
-import { AuthenticationTestUtility, systemAuthToken, productAdminToken, productEditorToken, supplierAdminToken } from "./authentication.util.spec";
+import { AuthUtil} from "./authentication.util.spec";
 import { Cleanup } from "./cleanup.util.spec";
 import { suite, test } from "mocha-typescript";
 import { DatabaseBootstrap } from "../config/database/database-bootstrap";
@@ -29,7 +29,7 @@ class BootstrapTest {
             await DatabaseBootstrap.seed();
 
             // This will create, 2 users, an organization, and add the users to the correct roles.
-            await AuthenticationTestUtility.createIdentityApiTestData();
+            await AuthUtil.createIdentityApiTestData();
             done();
         });
     }

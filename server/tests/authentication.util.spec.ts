@@ -16,24 +16,24 @@ const mongoose = require("mongoose");
 const expect = chai.expect;
 const should = chai.should();
 
-export let systemAuthToken: string;
-export let productAdminToken: string;
-export let productEditorToken: string;
-export let supplierAdminToken: string;
-export let supplierEditorToken: string;
-
 // We need to rename this so it doesn't collide with the authentication utility in the controllers folder.
-export class AuthenticationTestUtility {
+export class AuthUtil {
+
+    static systemAuthToken: string;
+    static productAdminToken: string;
+    static productEditorToken: string;
+    static supplierAdminToken: string;
+    static supplierEditorToken: string;
 
     // We want to make sure we're cleaning up any test accounts that we create on the identity api.
     public static async cleanupIdentityApi() {
         try {
             // First with the system credentials we're going to clean up the identity api.
             // get a token for the system admin account.
-            systemAuthToken = await new IdentityApiService(CONST.ep.USERS).authenticateSystemUser();
+            this.systemAuthToken = await new IdentityApiService(CONST.ep.USERS).authenticateSystemUser();
 
             // This will double check that we actually got a token back.
-            expect(systemAuthToken).length.to.be.greaterThan(0);
+            expect(this.systemAuthToken).length.to.be.greaterThan(0);
 
             // Now we have the system credentials.  it's time to clear out anything that we might want to.
             // first up lets delete users that we might have created.
@@ -94,10 +94,10 @@ export class AuthenticationTestUtility {
             await this.addRolesToUser(CONST.SUPPLIER_EDITOR_ROLE, supEditorId);
 
             // Now we can use these tokens when we call back out to the product api during testing.
-            productAdminToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.PRODUCT_ADMIN_EMAIL, "test354435");
-            productEditorToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.PRODUCT_EDITOR_EMAIL, "test354435");
-            supplierEditorToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.SUPPLIER_EDITOR_EMAIL, "test354435");
-            supplierAdminToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.SUPPLIER_ADMIN_EMAIL, "test354435");
+            this.productAdminToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.PRODUCT_ADMIN_EMAIL, "test354435");
+            this.productEditorToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.PRODUCT_EDITOR_EMAIL, "test354435");
+            this.supplierEditorToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.SUPPLIER_EDITOR_EMAIL, "test354435");
+            this.supplierAdminToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.SUPPLIER_ADMIN_EMAIL, "test354435");
 
         } catch (err) {
             this.handleTestError(err);

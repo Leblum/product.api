@@ -3,7 +3,7 @@ import { App, server } from '../../server-entry';
 import { Supplier, ISupplier, ITokenPayload } from '../../models';
 import { Config } from '../../config/config';
 import { CONST } from "../../constants";
-import { AuthenticationTestUtility, systemAuthToken, productAdminToken, productEditorToken, supplierAdminToken } from "../authentication.util.spec";
+import { AuthUtil } from "../authentication.util.spec";
 import { Cleanup } from "../cleanup.util.spec";
 import { suite, test } from "mocha-typescript";
 import { DatabaseBootstrap } from "../../config/database/database-bootstrap";
@@ -57,7 +57,7 @@ class SupplierTest {
 
         let response = await api
             .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.SUPPLIERS}`)
-            .set(CONST.TOKEN_HEADER_KEY, systemAuthToken)
+            .set(CONST.TOKEN_HEADER_KEY, AuthUtil.systemAuthToken)
             .send(supplier);
 
         expect(response.status).to.equal(201);
@@ -78,7 +78,7 @@ class SupplierTest {
 
         let response = await api
             .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.SUPPLIERS}`)
-            .set(CONST.TOKEN_HEADER_KEY, supplierAdminToken)
+            .set(CONST.TOKEN_HEADER_KEY, AuthUtil.supplierAdminToken)
             .send(supplier);
 
         expect(response.status).to.equal(201);

@@ -110,9 +110,10 @@ export interface IProductDoc extends IProduct, IBaseModelDoc {
 const ProductSchema = new Schema({
     ownerships: [{
         _id: { auto: false },
-        ownerId: { type: String },
+        ownerId:  { type: Schema.Types.ObjectId },
         ownershipType: { type: Number, enum: [enums.EnumHelper.getValuesFromEnum(enums.OwnershipType)] },
     }],
+    supplierId: { type: Schema.Types.ObjectId },
     displayName: { type: String },
     commonName: { type: String },
     shortDescription: { type: String },

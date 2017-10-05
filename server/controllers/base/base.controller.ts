@@ -32,7 +32,8 @@ export abstract class BaseController {
 
         document.ownerships.forEach(documentOwnershipElement => {
             if (documentOwnershipElement.ownershipType === ownershipType
-                && documentOwnershipElement.ownerId === ownerId) {
+                // One of these is a bson id on the document, the other is a string, so don't use triple equal
+                && documentOwnershipElement.ownerId == ownerId) {
                 isOwner = true;
             }
         });
