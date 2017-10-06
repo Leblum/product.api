@@ -5,6 +5,7 @@ import { Config } from '../config/config';
 import { ITokenPayload, IBaseModelDoc } from '../models/';
 import { CONST } from "../constants";
 import { ApiErrorHandler } from "../api-error-handler";
+import * as log from 'winston';
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -21,7 +22,10 @@ export class AuthenticationController {
                 // verifies secret and checks exp
                 //Rewrite to use async or something 
                 jwt.verify(token, Config.active.get('jwtSecretToken'), (err, decoded) => {
-                    if (err) { ApiErrorHandler.sendAuthFailure(response, 401, `Failed to authenticate token. The timer *may* have expired on this token. err: ${err}`); }
+                    if (err) {
+                        log.error(JSON.stringify(err)); 
+                        ApiErrorHandler.sendAuthFailure(response, 401, `Failed to authenticate token. The timer *may* have expired on this token. err: ${err}`); 
+                    }
                     else {
                         var token: ITokenPayload = decoded;
                         request[CONST.REQUEST_TOKEN_LOCATION] = token;
