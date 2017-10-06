@@ -6,19 +6,35 @@ import * as superagent from "superagent";
 
 import * as log from 'winston';
 import { BaseService } from "./base/base.service";
+import { ITokenPayload } from '../models/index';
+const jwt = require('jsonwebtoken');
 
-export class IdentityApiService extends BaseService{
+export class IdentityApiService extends BaseService {
 
-    constructor(endpoint:string){
+    private static currentSystemToken: string;
+    private static currentSystemTokenExpiresAt: string;
+
+    constructor(endpoint: string) {
         super(endpoint);
         super.baseUrl = Config.active.get('identityApiEndpoint');
         super.apiName = 'Identity.Api.Service';
     };
 
-    public async authenticateSystemUser(): Promise<string>{
-        const token = await this.authenticateUser("system@leblum.com", Config.active.get('systemUserPassword'));
-        Config.active.set(CONST.SYSTEM_AUTH_TOKEN, token);
-        return token;
+    public static async getSysToken(): Promise<string> {
+        //If the systemToken is null, or the system token is close to expiring, go get a new system token.
+        if (!this.currentSystemToken ||
+            moment().isAfter(moment(this.currentSystemTokenExpiresAt, CONST.MOMENT_DATE_FORMAT).subtract(1, 'h'))) {
+
+            const token = await new IdentityApiService(CONST.ep.AUTHENTICATE).authenticateUser("system@leblum.com", Config.active.get('systemUserPassword'));
+            
+            // We're just going to decode the token.  DON'T just trust tokens from anyone.  This isn't from a user, it's from our 
+            // identity service.
+            let decoded: ITokenPayload = jwt.decode(token);
+
+            this.currentSystemToken = token;
+            this.currentSystemTokenExpiresAt = decoded.expiresAt;
+        }
+        return this.currentSystemToken;
     }
 
     // This will authenticate a user, and return their auth token from the identity api.
@@ -28,7 +44,7 @@ export class IdentityApiService extends BaseService{
         try {
             log.info('Authenticating a user:' + email);
             let response: superagent.Response = await superagent
-                .post(`${this.baseUrl}${CONST.ep.AUTHENTICATE}`) 
+                .post(`${this.baseUrl}${CONST.ep.AUTHENTICATE}`)
                 .send({
                     email: email,
                     password: password,
@@ -47,7 +63,7 @@ export class IdentityApiService extends BaseService{
         try {
             console.log('registering user ' + `${this.baseUrl}${CONST.ep.REGISTER}`)
             let response: superagent.Response = await superagent
-                .post(`${this.baseUrl}${CONST.ep.REGISTER}`) 
+                .post(`${this.baseUrl}${CONST.ep.REGISTER}`)
                 .send(body);
 
             return response;

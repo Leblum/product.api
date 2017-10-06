@@ -22,7 +22,7 @@ export class SupportingServicesBootstrap {
     private static async seedIdentityApi() {
         // We need to get a system user token so authenticate with the system user creds first
         try {
-            const systemToken = await new IdentityApiService(CONST.ep.USERS).authenticateSystemUser();
+            const systemToken = await IdentityApiService.getSysToken();
 
             // Here we're going to seed the identity api with the roles that we require.
             this.seedRole('product:admin', 'Full control over products.', systemToken);

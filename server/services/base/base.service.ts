@@ -4,6 +4,7 @@ import log = require('winston');
 
 import * as superagent from "superagent";
 import { IBaseModel } from '../../models/index';
+import { IdentityApiService } from '../index';
 
 export abstract class BaseService {
 
@@ -21,7 +22,7 @@ export abstract class BaseService {
 
             const response = await superagent
                 .get(url)
-                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                .set(CONST.TOKEN_HEADER_KEY, await IdentityApiService.getSysToken())
                 .send(query);
 
             return response.body;
@@ -34,7 +35,7 @@ export abstract class BaseService {
             const url = `${this.baseUrl}${this.endpoint}${CONST.ep.common.QUERY}`;
             const response = await superagent
                 .get(url)
-                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                .set(CONST.TOKEN_HEADER_KEY, await IdentityApiService.getSysToken())
                 .send(query);
             return response.body;
         } catch (err) { this.errorHandler(err) }
@@ -45,7 +46,7 @@ export abstract class BaseService {
             const url = `${this.baseUrl}${this.endpoint}/${id}`;
             let response = await superagent
                 .delete(url)
-                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN));
+                .set(CONST.TOKEN_HEADER_KEY, await IdentityApiService.getSysToken());
             return response.body;
         } catch (err) { this.errorHandler(err) }
     }
@@ -55,7 +56,7 @@ export abstract class BaseService {
             const url = `${this.baseUrl}${this.endpoint}`;
             let response = await superagent
                 .delete(url)
-                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                .set(CONST.TOKEN_HEADER_KEY, await IdentityApiService.getSysToken())
                 .send(query)
             return response.body;
         } catch (err) { this.errorHandler(err) }
@@ -66,7 +67,7 @@ export abstract class BaseService {
             const url = `${this.baseUrl}${this.endpoint}`;
             const response = await superagent
                 .post(url)
-                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                .set(CONST.TOKEN_HEADER_KEY, await IdentityApiService.getSysToken())
                 .send(T);
             return response.body;
         } catch (err) { this.errorHandler(err) }
@@ -77,7 +78,7 @@ export abstract class BaseService {
             const url = `${this.baseUrl}${this.endpoint}/${id}`;
             const response = await superagent
                 .patch(url)
-                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                .set(CONST.TOKEN_HEADER_KEY, await IdentityApiService.getSysToken())
                 .send(body);
             return response.body;
         } catch (err) { this.errorHandler(err) }
@@ -87,7 +88,7 @@ export abstract class BaseService {
         try {
             return await superagent
                 .post(`${this.baseUrl}${this.endpoint}`)
-                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                .set(CONST.TOKEN_HEADER_KEY, await IdentityApiService.getSysToken())
                 .send(body)
                 .catch(err => this.errorHandler(err));
         } catch (err) { this.errorHandler(err) }
@@ -97,7 +98,7 @@ export abstract class BaseService {
         try {
             return await superagent
                 .post(`${this.baseUrl}${this.endpoint}${CONST.ep.common.QUERY}`)
-                .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                .set(CONST.TOKEN_HEADER_KEY, await IdentityApiService.getSysToken())
                 .send(query)
                 .catch(err => this.errorHandler(err));
         } catch (err) { this.errorHandler(err) }
@@ -113,7 +114,7 @@ export abstract class BaseService {
             if (queryResponse.status === 200 && queryResponse.body.length === 1 && queryResponse.body[0]._id) {
                 return await superagent
                     .delete(`${this.baseUrl}${this.endpoint}/${queryResponse.body[0]._id}`)
-                    .set(CONST.TOKEN_HEADER_KEY, Config.active.get(CONST.SYSTEM_AUTH_TOKEN))
+                    .set(CONST.TOKEN_HEADER_KEY, await IdentityApiService.getSysToken())
                     .catch(err => this.errorHandler(err));
 
             }

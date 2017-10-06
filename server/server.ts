@@ -68,7 +68,7 @@ class Application {
   // At startup, we're going to automatically authenticate the system user, so we can use that token
   // TODO figure out how we renew this token when it expires.
   private async authenticateSystemUser(): Promise<void> {
-    const token = await new IdentityApiService(CONST.ep.AUTHENTICATE).authenticateSystemUser();
+    const token = await IdentityApiService.getSysToken();
     log.info(`System user has been authenticated.`);
   }
 

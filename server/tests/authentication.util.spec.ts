@@ -30,7 +30,7 @@ export class AuthUtil {
         try {
             // First with the system credentials we're going to clean up the identity api.
             // get a token for the system admin account.
-            this.systemAuthToken = await new IdentityApiService(CONST.ep.USERS).authenticateSystemUser();
+            this.systemAuthToken = await IdentityApiService.getSysToken();
 
             // This will double check that we actually got a token back.
             expect(this.systemAuthToken).length.to.be.greaterThan(0);
