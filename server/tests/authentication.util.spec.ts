@@ -53,6 +53,10 @@ export class AuthUtil {
                 "email": CONST.testing.SUPPLIER_ADMIN_EMAIL
             });
 
+            await new IdentityApiService(CONST.ep.USERS).deleteSingle({
+                "email": CONST.testing.UPGRADE_USER_EMAIL
+            });
+
             // Now let's delete the organization we created for testing.
             await new IdentityApiService(CONST.ep.ORGANIZATIONS).deleteSingle({
                 "name": CONST.testing.ORGANIZATION_NAME
@@ -104,7 +108,7 @@ export class AuthUtil {
         }
     }
 
-    private static async registerUser(email:string): Promise<string>{
+    public static async registerUser(email:string): Promise<string>{
         const userResponse = await new IdentityApiService(CONST.ep.USERS).registerUser({
             "firstName": "Dave",
             "lastName": "Brown",

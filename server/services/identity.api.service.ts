@@ -6,7 +6,8 @@ import * as superagent from "superagent";
 
 import * as log from 'winston';
 import { BaseService } from "./base/base.service";
-import { ITokenPayload } from '../models/index';
+import { ITokenPayload, IUserUpgradeRequest, IUserUpgradeResponse } from '../models/index';
+import { OrganizationType } from '../enumerations';
 const jwt = require('jsonwebtoken');
 
 export class IdentityApiService extends BaseService {
@@ -35,6 +36,21 @@ export class IdentityApiService extends BaseService {
             this.currentSystemTokenExpiresAt = decoded.expiresAt;
         }
         return this.currentSystemToken;
+    }
+
+    public async upgrade(userUpgradeRequest: IUserUpgradeRequest): Promise<IUserUpgradeResponse>{
+        try {
+            log.info('upgrading a user:' + userUpgradeRequest.userId);
+            let response: superagent.Response = await superagent
+                .post(`${this.baseUrl}${CONST.ep.USERS}${CONST.ep.UPGRADE}`)
+                .set(CONST.TOKEN_HEADER_KEY, await IdentityApiService.getSysToken())
+                .send(userUpgradeRequest);
+
+            return response.body as IUserUpgradeResponse;
+        }
+        catch (err) {
+            this.errorHandler(err);
+        }
     }
 
     // This will authenticate a user, and return their auth token from the identity api.

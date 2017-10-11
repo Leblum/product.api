@@ -209,8 +209,12 @@ class Application {
   private routes(): void {
     log.info('Initializing Routers');
 
+    
+
     // Now we lock up the rest.
     this.express.use('/api/*', new AuthenticationController().authMiddleware);
+
+    this.express.use(CONST.ep.API + CONST.ep.V1, new routers.SupplierRegistrationRouter().getRouter());
 
     // Basically the users can authenticate, and register, but much past that, and you're going to need an admin user to access our identity api.
     this.express.use(CONST.ep.API + CONST.ep.V1, new routers.ProductRouter().getRouter());

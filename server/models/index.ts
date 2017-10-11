@@ -13,4 +13,5 @@ export * from './image.interface';
 export * from './address.interface';
 export * from './email.interface';
 export * from './phone.interface';
-export * from './team-member.interface'
+export * from './team-member.interface';
+export * from './user-upgrade.interface';

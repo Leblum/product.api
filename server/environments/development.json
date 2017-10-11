@@ -13,6 +13,8 @@
     "mandrillApiKey": "EEQCHdKzdFHYo4VNLdb3nw", // this is the test key for right now... switch to real
     "clientDistFolder": "dev",
     "identityApiEndpoint": "https://dev.identity.leblum.io/api/v1",
+    // THIS DOESN"T WORK like you think for unit testing.  Remember, unit tests are run in integration.
+    //"identityApiEndpoint": "http://localhost:8080",
     "ProductImageBucketName": "dev-product-api-images",
     "SupplierImageBucketName": "dev-supplier-api-images"
 }

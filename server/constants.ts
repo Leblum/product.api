@@ -9,6 +9,7 @@ export const CONST = {
         API_SWAGGER_DEF: '/swagger-definition',
         PERMISSIONS: '/permissions',
         ROLES: '/roles',
+        UPGRADE: '/upgrade',
         ORGANIZATIONS: '/organizations',
         PRODUCT_TEMPLATES: '/product-templates',
         PRODUCTS: '/products',
@@ -25,6 +26,7 @@ export const CONST = {
     },
     TOKEN_HEADER_KEY: "x-access-token",
     ADMIN_ROLE: 'admin',
+    GUEST_ROLE: 'guest',
     PRODUCT_ADMIN_ROLE: 'product:admin',
     PRODUCT_EDITOR_ROLE: 'product:editor',
     SUPPLIER_EDITOR_ROLE: 'supplier:editor',
@@ -44,6 +46,7 @@ export const CONST = {
         PRODUCT_EDITOR_EMAIL: "integration.product.editorRole@leblum.com",
         SUPPLIER_ADMIN_EMAIL: "integration.supplier.adminRole@leblum.com",
         SUPPLIER_EDITOR_EMAIL: "integration.supplier.editorRole@leblum.com",
+        UPGRADE_USER_EMAIL: "integration.supplier.upgrade.editor@leblum.com",
         ORGANIZATION_NAME: "IntegrationTestOrganization"
     },
     IMAGE_UPLOAD_PATH: './img-uploads/',

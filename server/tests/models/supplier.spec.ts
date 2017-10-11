@@ -10,6 +10,7 @@ import { DatabaseBootstrap } from "../../config/database/database-bootstrap";
 
 import * as supertest from 'supertest';
 import * as chai from 'chai';
+import { IdentityApiService } from '../../services/index';
 
 const api = supertest.agent(App.server);
 const mongoose = require("mongoose");
@@ -29,10 +30,10 @@ class SupplierTest {
         //     await DatabaseBootstrap.seed();
 
         //     // This will create, 2 users, an organization, and add the users to the correct roles.
-        //     await AuthenticationTestUtility.createIdentityApiTestData();
+        //     await AuthUtil.createIdentityApiTestData();
         //     done();
         // });
-        //This done should be commented if you're going to run this as suite.only()
+        // //This done should be commented if you're going to run this as suite.only()
         done();
     }
 
@@ -51,8 +52,8 @@ class SupplierTest {
         let supplier: ISupplier = {
             isActive: true,
             isApproved: false,
-            name: 'JRose Magic Flowers',
-            slug: 'jrose',
+            name: 'JRose Magic Flowers 2134123',
+            slug: 'jroseas3d2f',
         }
 
         let response = await api
@@ -68,12 +69,59 @@ class SupplierTest {
         return;
     }
 
+    @test('Register the supplier')
+    public async RegisterSupplier() {
+        // Create a new user user like this was the signup workflow.
+        let userId = await AuthUtil.registerUser(CONST.testing.UPGRADE_USER_EMAIL);
+
+        let userToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.UPGRADE_USER_EMAIL, "test354435");
+
+        let supplier: ISupplier = {
+            isActive: true,
+            isApproved: false,
+            name: 'upgrade supplier',
+            slug: 'jrose1asd32',
+        }
+
+        let response = await api
+            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.SUPPLIERS}${CONST.ep.REGISTER}`)
+            .set(CONST.TOKEN_HEADER_KEY,userToken)
+            .send(supplier);
+        
+        expect(response.status).to.equal(201);
+        expect(response.body).to.be.an('object');
+        expect(response.body.name).to.be.equal(supplier.name);
+        expect(response.body.isActive).to.be.equal(true);
+        expect(response.body.isApproved).to.be.equal(false);
+
+        let registeredSupplier = response.body as ISupplier;
+
+        // Now after we've registerd the supplier, we need to re auth the user, because their organization changed from guest to this 
+        // new supplier.
+        userToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.UPGRADE_USER_EMAIL, "test354435");
+
+        // Let's check to make sure that this user has the rights to change some detail about this supplier
+        registeredSupplier.pickupName = 'This is a test';
+        let updateResponse = await api
+        .patch(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.SUPPLIERS}/${response.body._id}`)
+        .set(CONST.TOKEN_HEADER_KEY,userToken)
+        .send(registeredSupplier);
+
+        expect(updateResponse.status).to.equal(202);
+        expect(updateResponse.body).to.be.an('object');
+        expect(updateResponse.body.name).to.be.equal(supplier.name);
+        expect(updateResponse.body.pickupName).to.be.equal(registeredSupplier.pickupName);
+
+        return;
+    }
+
     @test('Supplier Admins should be able to create a supplier')
     public async CreateASupplierByAdmin() {
         let supplier: ISupplier = {
             isActive: true,
             isApproved: false,
-            name: 'JRose Magic Flowers',
+            name: 'JRose Magic Flowers 1234',
+            slug: 'asdf35v1a'
         }
 
         let response = await api
