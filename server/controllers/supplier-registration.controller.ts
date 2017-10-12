@@ -26,9 +26,7 @@ export class SupplierRegistrationController extends BaseController {
 
     public async register(request: Request, response: Response, next: NextFunction): Promise<ISupplierDoc> {
 
-        // Then we create the supplier.  We'll need to update the ownership with the organization we created on the 
-        // identity api.
-        //There's a bug here, the ownership will be to the guest organization.  I guess we can change that after the fact.
+        // First we create a supplier doc.
         let supplierDoc: ISupplierDoc = await super.create(request,response,next,false) as ISupplierDoc;
 
         // This call will upgrade the user to supplier editor role.  we also need to correct data on our end. 
