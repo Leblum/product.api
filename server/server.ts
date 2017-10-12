@@ -62,6 +62,8 @@ class Application {
 
     this.server = this.express.listen(Config.active.get('port'), () => {
       log.info(`Listening on port: ${Config.active.get('port')}`);
+      log.info(`Current version ${process.env.npm_package_version}`);
+      log.info(`App Name ${process.env.npm_package_name}`);
     });
   }
 
@@ -137,9 +139,10 @@ class Application {
       const isSetupComplete = HealthStatus.isHealthy();
       response.statusCode = isSetupComplete ? 200 : 500;
       response.json({
-        ApplicationName: Config.active.get('name'),
+        ApplicationName: process.env.npm_package_name,
         StatusCode: isSetupComplete ? 200 : 500,
         SetupComplete: isSetupComplete,
+        Version: process.env.npm_package_version
       });
     });
   }
