@@ -25,29 +25,30 @@ export class SupplierRegistrationController extends BaseController {
     }
 
     public async register(request: Request, response: Response, next: NextFunction): Promise<ISupplierDoc> {
+        try {
+            // First we create a supplier doc.
+            let supplierDoc: ISupplierDoc = await super.create(request, response, next, false) as ISupplierDoc;
 
-        // First we create a supplier doc.
-        let supplierDoc: ISupplierDoc = await super.create(request,response,next,false) as ISupplierDoc;
+            // This call will upgrade the user to supplier editor role.  we also need to correct data on our end. 
+            let upgradeResponse: IUserUpgradeResponse = await new IdentityApiService(CONST.ep.USERS + CONST.ep.UPGRADE).upgrade({
+                organizationName: supplierDoc.name,
+                userId: (request[CONST.REQUEST_TOKEN_LOCATION] as ITokenPayload).userId,
+                roleName: CONST.SUPPLIER_EDITOR_ROLE,
+            });
 
-        // This call will upgrade the user to supplier editor role.  we also need to correct data on our end. 
-        let upgradeResponse: IUserUpgradeResponse = await new IdentityApiService(CONST.ep.USERS + CONST.ep.UPGRADE).upgrade({
-            organizationName: supplierDoc.name,
-            userId: (request[CONST.REQUEST_TOKEN_LOCATION] as ITokenPayload).userId,
-            roleName: CONST.SUPPLIER_EDITOR_ROLE,
-        });
+            // Now we should have back an organizationID, and we need to clean up the ownerships on that side of thing.
+            supplierDoc.ownerships = [{
+                ownerId: upgradeResponse.organizationId,
+                ownershipType: OwnershipType.organization
+            }];
 
-        // Now we should have back an organizationID, and we need to clean up the ownerships on that side of thing.
-        supplierDoc.ownerships = [{
-            ownerId: upgradeResponse.organizationId,
-            ownershipType: OwnershipType.organization
-        }];
+            supplierDoc = await this.repository.save(supplierDoc);
 
-        supplierDoc = await this.repository.save(supplierDoc);
+            response.status(201).json(supplierDoc);
+            log.info(`Registered new supplier Name: ${supplierDoc.name}`);
 
-        response.status(201).json(supplierDoc);
-        log.info(`Registered new supplier Name: ${supplierDoc.name}`);
-    
-        return supplierDoc;
+            return supplierDoc;
+        } catch (err) { next(err); }
     }
 
     // This will add ownerships whenever a document is created.

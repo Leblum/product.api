@@ -79,7 +79,7 @@ class SupplierTest {
         let supplier: ISupplier = {
             isActive: true,
             isApproved: false,
-            name: 'upgrade supplier',
+            name: 'integration test upgrade supplier',
             slug: 'jrose1asd32',
         }
 
@@ -111,6 +111,16 @@ class SupplierTest {
         expect(updateResponse.body).to.be.an('object');
         expect(updateResponse.body.name).to.be.equal(supplier.name);
         expect(updateResponse.body.pickupName).to.be.equal(registeredSupplier.pickupName);
+        
+        let updatedSupplier: ISupplier = updateResponse.body as ISupplier;
+
+        // Now we cleanup the identity api, which will have an organization created in development for this supplier.
+        // the organization id sits on the supplier we got back. 
+        let deletedOrgResponse = await new IdentityApiService(CONST.ep.ORGANIZATIONS).delete(updatedSupplier.ownerships[0].ownerId);
+        deletedOrgResponse.should.be.an('object');
+        deletedOrgResponse.should.have.property('ItemRemoved');
+        deletedOrgResponse.should.have.property('ItemRemovedId');
+        expect(deletedOrgResponse.ItemRemovedId).to.be.equal(updatedSupplier.ownerships[0].ownerId);
 
         return;
     }
