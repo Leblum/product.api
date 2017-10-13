@@ -9,6 +9,7 @@ import { IOwnership } from "../models/ownership.interface";
 import { AmazonS3Service, IdentityApiService } from '../services/index';
 import * as log from 'winston';
 import { ISupplierRepository, SupplierRepository } from '../repositories/index';
+import { ApiErrorHandler } from '../api-error-handler';
 var bcrypt = require('bcrypt');
 
 export class SupplierRegistrationController extends BaseController {
@@ -26,6 +27,18 @@ export class SupplierRegistrationController extends BaseController {
 
     public async register(request: Request, response: Response, next: NextFunction): Promise<ISupplierDoc> {
         try {
+            // Firt check to make sure the suuplier name is unique, and the slug is unique
+            let supplier: ISupplier = this.repository.createFromBody(request.body);
+            if(await this.repository.getSupplierByName(supplier.name)){
+                ApiErrorHandler.sendError('A supplier already exists with that name.  Please choose a unique name, or sign in to an existing team.', 400, response);
+                return;
+            }
+
+            if(await this.repository.getSupplierBySlug(supplier.slug)){
+                ApiErrorHandler.sendError('A supplier already exists with that name.  Please choose a unique name, or sign in to an existing team.', 400, response);
+                return;
+            }
+
             // First we create a supplier doc.
             let supplierDoc: ISupplierDoc = await super.create(request, response, next, false) as ISupplierDoc;
 

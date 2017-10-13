@@ -10,4 +10,15 @@ export class SupplierRepository extends BaseRepository<ISupplierDoc> implements 
     public constructor() {
         super();
     }
+
+    public async getSupplierByName(name: string): Promise<ISupplierDoc>{
+        let supplier = await Supplier.findOne({ name: name });
+        return supplier;
+    }
+
+    public async getSupplierBySlug(slug: string): Promise<ISupplierDoc>{
+        let supplier = await Supplier.findOne({ slug: slug });
+        return supplier;
+    }
+
 }

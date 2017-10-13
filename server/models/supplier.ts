@@ -36,7 +36,7 @@ const SupplierSchema = new Schema({
         ownerId:  { type: Schema.Types.ObjectId },
         ownershipType: { type: Number, enum: [enums.EnumHelper.getValuesFromEnum(enums.OwnershipType)] },
     }],
-    name: { type: String },
+    name: { type: String , unique:true},
     slug: { type: String, unique:true },
     companyEmail: { type: String },
     companyPhone: { type: String },

@@ -4,5 +4,6 @@ import { Model } from "mongoose";
 import { IBaseRepository } from "../index";
 
 export interface ISupplierRepository extends IBaseRepository<ISupplierDoc>{
-    // createProductFromTemplate(productTemplate: IProductDoc): Promise<IProductDoc>;
+    getSupplierByName(name: string): Promise<ISupplierDoc>;
+    getSupplierBySlug(slug: string): Promise<ISupplierDoc>;
 }
