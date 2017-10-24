@@ -100,6 +100,8 @@ class SupplierTest {
         // new supplier.
         userToken = await new IdentityApiService(CONST.ep.USERS).authenticateUser(CONST.testing.UPGRADE_USER_EMAIL, "test354435");
 
+        console.log('Token from registered supplier, should have role supplier editor', userToken)
+
         // Let's check to make sure that this user has the rights to change some detail about this supplier
         registeredSupplier.pickupName = 'This is a test';
         let updateResponse = await api
@@ -144,6 +146,34 @@ class SupplierTest {
         expect(response.body.name).to.be.equal(supplier.name);
         expect(response.body.isActive).to.be.equal(true);
         expect(response.body.isApproved).to.be.equal(false);
+        return;
+    }
+
+    @test('Shouldnt be able to create a supplier by the same name')
+    public async CreateBySupplierFailsWithValidationErrors() {
+        let supplier: ISupplier = {
+            isActive: true,
+            isApproved: false,
+            name: 'JRose Magic Flowers qwer',
+            slug: 'asdf35v1a5674567'
+        }
+
+        let response = await api
+            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.SUPPLIERS}`)
+            .set(CONST.TOKEN_HEADER_KEY, AuthUtil.supplierAdminToken)
+            .send(supplier);
+    
+        let response2 = await api
+            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.SUPPLIERS}`)
+            .set(CONST.TOKEN_HEADER_KEY, AuthUtil.supplierAdminToken)
+            .send(supplier);
+
+        console.log(response2.body);
+
+        // Slug and Name should both fail validation.
+        expect(response2.status).to.equal(412);
+        expect(response2.body).to.be.an('object');
+        expect(response2.body.validationErrors.length).to.be.equal(2);
         return;
     }
 }

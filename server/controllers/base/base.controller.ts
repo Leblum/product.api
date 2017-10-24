@@ -68,6 +68,10 @@ export abstract class BaseController {
         return model;
     }
 
+    public async updateValidation(model: IBaseModelDoc){
+        return true;
+    }
+
     protected getId(request: Request): string {
         return request && request.params ? request.params['id'] : null;
     }
@@ -83,7 +87,7 @@ export abstract class BaseController {
     public respondWithValidationErrors(request: Request, response: Response, next: NextFunction, validationErrors: IValidationError[]): void {
         response.status(412).json({
             validationError: 'Your Item did not pass validation',
-            validationErorrs: validationErrors
+            validationErrors: validationErrors
         });
     }
 
@@ -147,6 +151,7 @@ export abstract class BaseController {
     private async update(request: Request, response: Response, next: NextFunction, isFull: boolean): Promise<IBaseModelDoc> {
         try {
             if (await this.isModificationAllowed(request, response, next)) {
+
                 let model = await this.preUpdateHook(this.repository.createFromBody(request.body));
 
                 //I think validation will break on partial updates.  Something to look for.

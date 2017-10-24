@@ -39,7 +39,9 @@ export const CONST = {
         EMAIL_TAKEN: 'EmailAlreadyTaken',
         PASSWORD_FAILED_CHECKS: 'PasswordFailedChecks',
         EMAIL_VERIFICATION_EXPIRED: 'EmailVerificationHasExpired',
-        PASSWORD_RESET_TOKEN_EXPIRED: 'PasswordResetTokenExpired'
+        PASSWORD_RESET_TOKEN_EXPIRED: 'PasswordResetTokenExpired',
+        SUPPLIER_NAME_TAKEN: 'SupplierNameTaken',
+        SUPPLIER_SLUG_TAKEN: 'SupplierSlugTaken',
     },
     testing:{
         PRODUCT_ADMIN_EMAIL: "integration.product.adminRole@leblum.com",
