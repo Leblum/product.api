@@ -168,8 +168,6 @@ class SupplierTest {
             .set(CONST.TOKEN_HEADER_KEY, AuthUtil.supplierAdminToken)
             .send(supplier);
 
-        console.log(response2.body);
-
         // Slug and Name should both fail validation.
         expect(response2.status).to.equal(412);
         expect(response2.body).to.be.an('object');

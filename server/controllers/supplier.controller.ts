@@ -53,7 +53,7 @@ export class SupplierController extends BaseController {
   public async isValid(supplier: ISupplierDoc): Promise<IValidationError[]> {
     let validationErrors = new Array<IValidationError>();
     if (!await this.checkName(supplier)) {
-      console.log('Name Validation failed');
+      log.info('Name Validation failed');
       validationErrors.push({
         field: 'name',
         message: 'That supplier name is already taken, you cant update/create to a name thats already taken',
@@ -62,7 +62,7 @@ export class SupplierController extends BaseController {
       });
     }
     if (!await this.checkSlug(supplier)) {
-      console.log('Slug Validation Failed');
+      log.info('Slug Validation Failed');
       validationErrors.push({
         field: 'slug',
         message: 'That supplier team name is already taken, you cant update/create to a team name thats already taken',
@@ -70,7 +70,6 @@ export class SupplierController extends BaseController {
         value: supplier.slug
       });
     }
-    console.log(validationErrors);
     return validationErrors;
   }
 
