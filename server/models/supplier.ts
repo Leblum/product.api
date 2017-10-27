@@ -24,6 +24,7 @@ export interface ISupplier extends IBaseModel {
     isApproved: boolean,
     isActive: boolean,
     teamMembers?: ITeamMember[],
+    pushTokens?: Array<string>,
 }
 
 export interface ISupplierDoc extends ISupplier, IBaseModelDoc {
@@ -70,6 +71,7 @@ const SupplierSchema = new Schema({
     }],
     isApproved: { type: Boolean, required: true, default: false },
     isActive: { type: Boolean, required: true, default: true },
+    pushTokens: [{ types: String, required: false}]
 }, { timestamps: true });
 
 //If you do any pre save methods, and you use fat arrow syntax 'this' doesn't refer to the document.
