@@ -15,3 +15,5 @@ export * from './email.interface';
 export * from './phone.interface';
 export * from './team-member.interface';
 export * from './user-upgrade.interface';
+export * from './order.interface';
+export * from './order-item.interface';

@@ -13,6 +13,7 @@ import * as chai from 'chai';
 
 const api = supertest.agent(App.server);
 const mongoose = require("mongoose");
+//mongoose.set('debug', true);
 const expect = chai.expect;
 const should = chai.should();
 
@@ -25,9 +26,12 @@ class BootstrapTest {
         // This code should only be called if this test is run as a single test.  When run in the suite along with
         // product this code is run by the product test.
         App.server.on('dbConnected', async () => {
+            console.log('Got the dbConnected Signal, so now we can clear, and seed the database.' )
             await Cleanup.clearDatabase();
+            console.log('About to seed the database');
             await DatabaseBootstrap.seed();
 
+            console.log('About to create identity test data.');
             // This will create, 2 users, an organization, and add the users to the correct roles.
             await AuthUtil.createIdentityApiTestData();
             done();

@@ -4,6 +4,16 @@ export enum OrganizationType{
     supplier = 3
 }
 
+export enum OrderStatus{
+    entered = 1,
+    sent = 2,
+    accepted = 3,
+    rejected = 4,
+    pickedUp = 5,
+    delivered = 6,
+    completed = 7
+}
+
 export enum OwnershipType{
     supplier=1,
     organization=2,
