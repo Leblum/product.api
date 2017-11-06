@@ -16,11 +16,12 @@ export class OrderController extends BaseController {
   public defaultPopulationArgument = { 
     // This will populate both the supplier on the document, and also the product.
     // in the future this might be a problem as the product document is pretty big.
-    path: 'supplier',
-    populate: {
-      path: 'items.product',
-      select: 'displayName images'
-    }
+    path: 'supplier items.product',
+    //select: 'displayName images',
+    // populate: {
+    //   path: 'items.product',
+    //   select: 'displayName images'
+    // }
   };
 
   public rolesRequiringOwnership = [];

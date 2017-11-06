@@ -6,5 +6,9 @@
     "sourceMap": true,
     "emitDecoratorMetadata": false,
     "experimentalDecorators": true
-  }
+  },
+  "exclude": [
+    "**/node_modules/*",
+    "typings"
+  ]
 }
