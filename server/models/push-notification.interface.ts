@@ -1,9 +1,9 @@
 export interface IPushNotificationPayload{
-    notification: {
+    notification?: {
         title: string,
         message: string,
     }
-    data:{
+    data?:{
         
     }
 }

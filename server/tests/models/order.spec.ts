@@ -19,7 +19,7 @@ const mongoose = require("mongoose");
 const expect = chai.expect;
 const should = chai.should();
 
-@suite.only('Order Model -> ')
+@suite('Order Model -> ')
 class OrderTest {
 
     // First we need to get some users to work with from the identity service
@@ -27,16 +27,16 @@ class OrderTest {
         console.log('Testing orders');
         // This code should only be called if this test is run as a single test.  When run in the suite along with
         // bootstrap.util.spec this code is run by the bootstrap spec.
-        App.server.on('dbConnected', async () => {
-            await Cleanup.clearDatabase();
-            await DatabaseBootstrap.seed();
+        // App.server.on('dbConnected', async () => {
+        //     await Cleanup.clearDatabase();
+        //     await DatabaseBootstrap.seed();
 
-            // This will create, 2 users, an organization, and add the users to the correct roles.
-            await AuthUtil.createIdentityApiTestData();
-            done();
-        });
+        //     // This will create, 2 users, an organization, and add the users to the correct roles.
+        //     await AuthUtil.createIdentityApiTestData();
+        //     done();
+        // });
         //This done should be commented if you're going to run this as suite.only()
-        //done();
+        done();
     }
 
     public static async after() {

@@ -4,15 +4,16 @@ import * as admin from 'firebase-admin';
 
 var serviceAccount = require('../firebaseKey.json');
 
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://leblum-io.firebaseio.com"
+});
+
 export class FirebaseService {
     constructor() {
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount),
-            databaseURL: "https://leblum-io.firebaseio.com"
-        });
     }
 
-    public async sendNotification(
+    public static async sendNotification(
         tokens: Array<string>, 
         notification: IPushNotificationPayload
     ) : Promise<admin.messaging.MessagingDevicesResponse> {
