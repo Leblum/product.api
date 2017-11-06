@@ -14,6 +14,15 @@ export enum OrderStatus{
     completed = 7
 }
 
+export enum PushNotificationType{
+    orderSent = 1,
+    orderAccepted = 2,
+    orderRejected = 3,
+    orderPickupArriving = 4,
+    orderPickedUp = 5,
+    orderDelivered = 6,
+}
+
 export enum OwnershipType{
     supplier=1,
     organization=2,

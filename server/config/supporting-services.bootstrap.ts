@@ -12,7 +12,6 @@ import { IdentityApiService } from "../services/identity.api.service";
 
 // This is where we're going to bootstrap other services that we need to interact with.
 // In this case we're talking to the identity service, and we need to make sure that it has the roles that we need.
-// TODO clean this up so we use the IdentityApiService
 export class SupportingServicesBootstrap {
 
     public static async seed() {
@@ -25,10 +24,10 @@ export class SupportingServicesBootstrap {
             const systemToken = await IdentityApiService.getSysToken();
 
             // Here we're going to seed the identity api with the roles that we require.
-            this.seedRole('product:admin', 'Full control over products.', systemToken);
-            this.seedRole('product:editor', 'Creates products from templates, can edit products, no editing templates', systemToken);
-            this.seedRole('supplier:admin', 'Full control over suppliers.', systemToken);
-            this.seedRole('supplier:editor', 'Can edit thier own supplier details, but cant delete other suppliers', systemToken);
+            this.seedRole(CONST.PRODUCT_ADMIN_ROLE, 'Full control over products.', systemToken);
+            this.seedRole(CONST.PRODUCT_EDITOR_ROLE, 'Creates products from templates, can edit products, no editing templates', systemToken);
+            this.seedRole(CONST.SUPPLIER_ADMIN_ROLE, 'Full control over suppliers.', systemToken);
+            this.seedRole(CONST.SUPPLIER_EDITOR_ROLE, 'Can edit thier own supplier details, but cant delete other suppliers', systemToken);
         }
         catch (err) {
             this.errorHandler(err);

@@ -68,7 +68,6 @@ class Application {
   }
 
   // At startup, we're going to automatically authenticate the system user, so we can use that token
-  // TODO figure out how we renew this token when it expires.
   private async authenticateSystemUser(): Promise<void> {
     const token = await IdentityApiService.getSysToken();
     log.info(`System user has been authenticated.`);
@@ -212,8 +211,6 @@ class Application {
   private routes(): void {
     log.info('Initializing Routers');
 
-    
-
     // Now we lock up the rest.
     this.express.use('/api/*', new AuthenticationController().authMiddleware);
 
@@ -223,7 +220,10 @@ class Application {
     this.express.use(CONST.ep.API + CONST.ep.V1, new routers.ProductRouter().getRouter());
     this.express.use(CONST.ep.API + CONST.ep.V1, new routers.SupplierRouter().getRouter());
 
-    this.express.use(CONST.ep.API + CONST.ep.V1, Authz.permit(CONST.ADMIN_ROLE),  new routers.OrderRouter().getRouter());
+    // This isn't quite right, the security here is bad.  This is basically saying all suppliers, can access all orders.  
+    // really when a supplier is sent an order, we need to update their ownership, and then we can check security against their ownership of their order.
+    // TODO: cleanup security around orders and suppliers.
+    this.express.use(CONST.ep.API + CONST.ep.V1, Authz.permit(CONST.ADMIN_ROLE, CONST.SUPPLIER_EDITOR_ROLE, CONST.SUPPLIER_ADMIN_ROLE ),  new routers.OrderRouter().getRouter());
     
     this.express.use(CONST.ep.API + CONST.ep.V1 + `${CONST.ep.PRODUCTS}${CONST.ep.UPLOAD_IMAGES}/:id`,
       Authz.permit(CONST.PRODUCT_ADMIN_ROLE, CONST.ADMIN_ROLE, CONST.PRODUCT_EDITOR_ROLE),

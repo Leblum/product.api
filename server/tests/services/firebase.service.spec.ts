@@ -19,7 +19,6 @@ const api = supertest.agent(App.server);
 const mongoose = require("mongoose");
 const expect = chai.expect;
 const should = chai.should();
-const pushToken = 'fLJEsDMKn1M:APA91bE3Ins30n5DksYkZ7AS7m0x6oH9sSFUbP01Jrb7UyELrjo8obESU_IwJ9qHuxLYA5zxLqjszJwyw4MLojJUEUgEo7DROixo-NyXFtYPgkq_pgy-P1v5nkYiQYkn5SobZU7HPMCj';
 
 @suite('Firebase Service Test')
 class FirebaseServiceTest {
@@ -51,7 +50,7 @@ class FirebaseServiceTest {
     @test('Send notification testing')
     public async sendNotificationTest() {
 
-        let messageResponse = await FirebaseService.sendNotification([pushToken],this.testNotification);
+        let messageResponse = await FirebaseService.sendNotification([CONST.testing.PUSH_TOKEN],this.testNotification);
 
         //console.log('Heres the response back from firebase send method.', messageResponse);
         //console.dir(messageResponse);
@@ -62,7 +61,7 @@ class FirebaseServiceTest {
     @test('Making sure that notification initializitaion isnt problematic in the constructor.')
     public async sendAgain() {
 
-        let messageResponse = await FirebaseService.sendNotification([pushToken],this.testNotification);
+        let messageResponse = await FirebaseService.sendNotification([CONST.testing.PUSH_TOKEN],this.testNotification);
 
         //console.log('Heres the response back from firebase send method.', messageResponse);
         //console.dir(messageResponse);

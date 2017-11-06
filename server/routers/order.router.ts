@@ -15,4 +15,23 @@ export class OrderRouter extends BaseRouter {
         super();
         this.resource = CONST.ep.ORDERS;
     }
+
+    public getRouter(): Router {
+        return super.getRouter()
+            .patch(`${this.resource}${CONST.ep.SEND}/:id`, async (request: Request, response: Response, next: NextFunction) => {
+                await this.controller.send(request, response, next);
+            })
+            .patch(`${this.resource}${CONST.ep.ACCEPT}/:id`, async (request: Request, response: Response, next: NextFunction) => {
+                await this.controller.accept(request, response, next);
+            })
+            .patch(`${this.resource}${CONST.ep.REJECT}/:id`, async (request: Request, response: Response, next: NextFunction) => {
+                await this.controller.reject(request, response, next);
+            })
+            .patch(`${this.resource}${CONST.ep.PICKUP}/:id`, async (request: Request, response: Response, next: NextFunction) => {
+                await this.controller.pickup(request, response, next);
+            })
+            .patch(`${this.resource}${CONST.ep.COMPLETE}/:id`, async (request: Request, response: Response, next: NextFunction) => {
+                await this.controller.complete(request, response, next);
+            });
+    }
 }

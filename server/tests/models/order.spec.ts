@@ -98,7 +98,6 @@ class OrderTest {
         let order: IOrderDoc = await this.createOrder(supplierDoc, productDoc);
 
         // now we try and do a get single, and see if we get back a populated order
-
         let response = await api
             .get(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.ORDERS}/${order._id}`)
             .set("x-access-token", AuthUtil.systemAuthToken);
@@ -110,9 +109,40 @@ class OrderTest {
 
         // Here we're checking to make sure that data population is working, because 
         // there's some pretty weird path stuff going on in the mongoose population stuff.
-        console.dir(response.body.items[0]);
+        // console.dir(response.body.items[0]);
         expect(response.body.items[0].product.displayName).to.be.equal(productDoc.displayName);
         expect(response.body.supplier.name).to.be.equal(supplierDoc.name);
+        return;
+    }
+
+    @test('make sure send order works')
+    public async sendOrderToSupplier() {
+        let productDoc = await this.createProduct();
+        let supplierDoc = await this.createSupplier();
+
+        let order: IOrderDoc = await this.createOrder(supplierDoc, productDoc);
+
+        // now we try and do a get single, and see if we get back a populated order
+        let response = await api
+            .get(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.ORDERS}/${order._id}`)
+            .set("x-access-token", AuthUtil.systemAuthToken);
+        //console.dir(response.body.items);
+        expect(response.status).to.equal(200);
+        expect(response.body).to.be.an('object');
+        expect(response.body).to.have.property('code');
+        expect(response.body.items).to.be.an('array');
+
+        // Now we're going to send this order off to the supplier that's on it.  
+
+        let OrderSendResponse = await api
+                    .patch(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.ORDERS}${CONST.ep.SEND}/${order._id}`)
+                    .set("x-access-token", AuthUtil.systemAuthToken);
+
+        // Here we're checking to make sure that data population is working, because 
+        // there's some pretty weird path stuff going on in the mongoose population stuff.
+        console.dir(OrderSendResponse.body.status);
+        expect(OrderSendResponse.body.status).to.equal(enums.OrderStatus.sent);
+
         return;
     }
 
@@ -123,6 +153,7 @@ class OrderTest {
             isApproved: false,
             name: `JRose Magic Flowers 2134123${Math.floor(Math.random() * 1321)}`,
             slug: `${Math.floor(Math.random() * 1321)}dbrownasdf3254adf`,
+            pushTokens: [CONST.testing.PUSH_TOKEN],
         }
 
         let response = await api

@@ -19,6 +19,11 @@ export const CONST = {
         DELETE_IMAGE_GROUP: '/delete-image-group',
         CREATE_FROM_TEMPLATE: '/create-product-from-template',
         UPLOAD_IMAGES: '/upload-images',
+        SEND: '/send',
+        ACCEPT: '/accept',
+        REJECT: '/reject',
+        PICKUP: '/pickup',
+        COMPLETE: '/complete',
         client: {
         },
         common:{
@@ -50,7 +55,8 @@ export const CONST = {
         SUPPLIER_ADMIN_EMAIL: "integration.supplier.adminRole@leblum.com",
         SUPPLIER_EDITOR_EMAIL: "integration.supplier.editorRole@leblum.com",
         UPGRADE_USER_EMAIL: "integration.supplier.upgrade.editor@leblum.com",
-        ORGANIZATION_NAME: "IntegrationTestOrganization"
+        ORGANIZATION_NAME: "IntegrationTestOrganization",
+        PUSH_TOKEN: 'fLJEsDMKn1M:APA91bE3Ins30n5DksYkZ7AS7m0x6oH9sSFUbP01Jrb7UyELrjo8obESU_IwJ9qHuxLYA5zxLqjszJwyw4MLojJUEUgEo7DROixo-NyXFtYPgkq_pgy-P1v5nkYiQYkn5SobZU7HPMCj',
     },
     IMAGE_UPLOAD_PATH: './img-uploads/',
 }

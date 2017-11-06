@@ -41,6 +41,7 @@
     "@types/mongoose-auto-increment": "^5.0.30",
     "@types/morgan": "^1.7.32",
     "@types/multer": "^1.3.3",
+    "@types/node": "^8.0.48",
     "@types/sharp": "^0.17.4",
     "@types/superagent": "^3.5.3",
     "@types/supertest": "^2.0.2",

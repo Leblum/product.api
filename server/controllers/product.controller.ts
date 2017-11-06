@@ -106,7 +106,7 @@ export class ProductController extends BaseController {
     return super.isOwnerInOwnership(productDocument, currentToken.organizationId, OwnershipType.organization);
   }
 
-  public async CreateProductFromTemplate(request: Request, response: Response, next: NextFunction): Promise<IProductDoc> {
+  public async createProductFromTemplate(request: Request, response: Response, next: NextFunction): Promise<IProductDoc> {
     try {
       // Create a new product.  The false here at the end of the create request allows us to not send the product back in a response just yet.
       // We need to get the product id off the product that was passed in, so that we can use it as our "master product id reference"
