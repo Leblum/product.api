@@ -9,6 +9,10 @@ import * as log from 'winston';
 
 
 export interface IOrder extends IBaseModel {
+    ownerships?: {
+        ownerId: string,
+        ownershipType: enums.OwnershipType
+    }[],
     orderNumber?: number,
     code?: string,
     status: enums.OrderStatus,
@@ -28,6 +32,11 @@ export interface IOrderDoc extends IOrder, IBaseModelDoc {
 }
 
 export const OrderSchema = new Schema({
+    ownerships: [{
+        _id: { auto: false },
+        ownerId:  { type: Schema.Types.ObjectId },
+        ownershipType: { type: Number, enum: [enums.EnumHelper.getValuesFromEnum(enums.OwnershipType)] },
+    }],
     orderNumber: { type: Number, unique: true },
     code: { type: String, unique: true },
     status: { type: Number, enum: [enums.EnumHelper.getValuesFromEnum(enums.OrderStatus)] },

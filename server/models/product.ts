@@ -1,6 +1,6 @@
 import { mongoose } from '../config/database/database';
 import { Schema, Model, Document, model } from 'mongoose';
-import { IBaseModel, IBaseModelDoc } from "./index";
+import { IBaseModel, IBaseModelDoc, ISupplier } from "./index";
 import * as enums from "../enumerations";
 import { IOwnership } from "./ownership.interface";
 import { IImage } from './image.interface';
@@ -11,7 +11,7 @@ export interface IProduct extends IBaseModel {
         ownerId: string,
         ownershipType: enums.OwnershipType
     }[],
-    supplierId?: string
+    supplier?: ISupplier,
     displayName?: string,
     commonName?: string,
     shortDescription?: string,
@@ -113,7 +113,7 @@ const ProductSchema = new Schema({
         ownerId:  { type: Schema.Types.ObjectId },
         ownershipType: { type: Number, enum: [enums.EnumHelper.getValuesFromEnum(enums.OwnershipType)] },
     }],
-    supplierId: { type: Schema.Types.ObjectId },
+    supplier: {type: Schema.Types.ObjectId, ref: 'supplier'},
     displayName: { type: String },
     commonName: { type: String },
     shortDescription: { type: String },

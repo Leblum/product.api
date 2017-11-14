@@ -215,7 +215,6 @@ class Application {
     this.express.use('/api/*', new AuthenticationController().authMiddleware);
 
     this.express.use(CONST.ep.API + CONST.ep.V1, new routers.SupplierRegistrationRouter().getRouter());
-
     
     this.express.use(CONST.ep.API + CONST.ep.V1, new routers.ProductRouter().getRouter());
     this.express.use(CONST.ep.API + CONST.ep.V1, new routers.SupplierRouter().getRouter());
