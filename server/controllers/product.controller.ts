@@ -14,7 +14,9 @@ var bcrypt = require('bcrypt');
 
 export class ProductController extends BaseController {
 
-  public defaultPopulationArgument = null;
+  public defaultPopulationArgument = {
+    path: "supplier"
+  };
   public rolesRequiringOwnership = ["product:editor"];
   public isOwnershipRequired = true;
 
@@ -132,6 +134,7 @@ export class ProductController extends BaseController {
       // Change the product to no longer be a template
       newProduct.isTemplate = false;
       newProduct.masterProductId = templateId;
+      // Products are only active for one day.
       newProduct.active.startDate = moment().format(CONST.MOMENT_DATE_FORMAT);
       newProduct.active.endDate = moment().add(moment.duration(1,'day')).format(CONST.MOMENT_DATE_FORMAT);
 
