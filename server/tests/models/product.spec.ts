@@ -315,7 +315,7 @@ class ProductTest {
         return;
     }
 
-    // Testing creation of product template from product:admin can be edited by product:editor
+    // Testing geo loc searching is working.  this will ensure we have the proper indexes in place.
     @test('geolocation searching working')
     public async addGeoLocationData() {
 

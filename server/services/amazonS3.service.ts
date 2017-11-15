@@ -57,7 +57,7 @@ export class AmazonS3Service{
     }
 
     private static configureS3(mimeType: string): S3{
-        return new AWS.S3({
+        const options: S3.ClientConfiguration = {
             apiVersion: '2006-03-01',
             params: {
                 Bucket: Config.active.get('ProductImageBucketName'),
@@ -66,7 +66,8 @@ export class AmazonS3Service{
                     ContentType: mimeType
                 }
             }
-        });
+        };
+        return new AWS.S3(options);
     }
     
     private static configureAws() {

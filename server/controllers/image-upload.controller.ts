@@ -59,7 +59,7 @@ export class ImageUploadController {
                 // Add the product images.
                 this.addVariation(image, rawImageFile, raw, enums.ImageType.raw, nextOrderNum);
                 this.addVariation(image, rawImageFile, thumb, enums.ImageType.thumbnail, nextOrderNum);
-                this.addVariation(image,  rawImageFile, icon, enums.ImageType.icon, nextOrderNum);
+                this.addVariation(image, rawImageFile, icon, enums.ImageType.icon, nextOrderNum);
                 this.addVariation(image, rawImageFile, small, enums.ImageType.small, nextOrderNum);
                 this.addVariation(image, rawImageFile, medium, enums.ImageType.medium, nextOrderNum);
                 this.addVariation(image, rawImageFile, large, enums.ImageType.large, nextOrderNum);

@@ -75,7 +75,8 @@ export class ProductController extends BaseController {
         if (!product) { throw { message: "Item Not Found", status: 404 }; }
 
         // These really wordy for loops are needed, because those mongoose arrays don't always behave with a foreach.
-        if (product && product.images) {
+        // We're only going to delete the product images if this is a product template.
+        if (product && product.images && product.isTemplate) {
           for (var i = 0; i < product.images.length; i++) {
             var image = product.images[i];
             if(image.variations && image.variations.length > 0){
@@ -118,6 +119,10 @@ export class ProductController extends BaseController {
       productTemplate._id = mongoose.Types.ObjectId();
 
       request.body = productTemplate;
+
+      // TODO: At some point we're going to have to copy the images for this active product over
+      // so we don't change images on the product template.
+      // http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#copyObject-property
 
       // Let the base class handle creation for us, but don't return the response back just yet.
       // Ownership will also be changed, and created by the base class.

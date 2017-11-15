@@ -17,7 +17,8 @@ export class AuthenticationController {
 
     public authMiddleware(request: Request, response: Response, next: NextFunction): Response {
         try {
-            const token = request.body.token || request.query.token || request.headers['x-access-token'];
+            const token = request.headers['x-access-token'];
+            console.log(token);
             if (token) {
                 // verifies secret and checks exp
                 //Rewrite to use async or something 
