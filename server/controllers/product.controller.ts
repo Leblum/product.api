@@ -8,6 +8,7 @@ import { IProductRepository, ProductRepository } from "../repositories";
 import { OwnershipType } from "../enumerations";
 import { IOwnership } from "../models/ownership.interface";
 import { AmazonS3Service } from '../services/index';
+import * as moment from 'moment';
 import * as log from 'winston';
 var bcrypt = require('bcrypt');
 
@@ -131,6 +132,8 @@ export class ProductController extends BaseController {
       // Change the product to no longer be a template
       newProduct.isTemplate = false;
       newProduct.masterProductId = templateId;
+      newProduct.active.startDate = moment().format(CONST.MOMENT_DATE_FORMAT);
+      newProduct.active.endDate = moment().add(moment.duration(1,'day')).format(CONST.MOMENT_DATE_FORMAT);
 
       // Save the update to the database
       await this.repository.save(newProduct);

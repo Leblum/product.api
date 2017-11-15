@@ -49,21 +49,21 @@ export interface IProduct extends IBaseModel {
         customerFirstName?: string,
         customerLastName?: string,
         customerUserId?: string,
-        createdDate?: Date,
+        createdDate?: string,
         rating?: number,
-        purchaseDate?: Date,
+        purchaseDate?: string,
         message?: string,
         isVerified?: boolean,
         isActive?: boolean,
         sellerResponse?: {
             name?: string,
             message?: string,
-            responseDate?: Date,
+            responseDate?: string,
         }
     },
     sizes?: string[],
     weights?: string[],
-    cutDate?: Date,
+    cutDate?: string,
     combinedWith?: string[],
     similarTo?: string[],
     pricing?: {
@@ -77,8 +77,8 @@ export interface IProduct extends IBaseModel {
         meanPrice?: number
     },
     active?: {
-        startDate?: Date,
-        endDate?: Date,
+        startDate?: string,
+        endDate?: string,
     },
     images?: IImage[],
     version?: string,
@@ -147,21 +147,21 @@ const ProductSchema = new Schema({
         customerFirstName: { type: String },
         customerLastName: { type: String },
         customerUserId: { type: Schema.Types.ObjectId },
-        createdDate: { type: Date },
+        createdDate: { type: String },
         rating: { type: Number },
-        purchaseDate: { type: Date },
+        purchaseDate: { type: String },
         message: { type: String },
         isVerified: { type: Boolean },
         isActive: { type: Boolean },
         sellerResponse: {
             name: { type: String },
             message: { type: String },
-            responseDate: { type: Date },
+            responseDate: { type: String },
         }
     },
     sizes: { type: [String] },
     weights: { type: [String] },
-    cutDate: { type: Date },
+    cutDate: { type: String },
     combinedWith: { type: [Schema.Types.ObjectId] },
     similarTo: { type: [Schema.Types.ObjectId] },
     pricing: {
@@ -175,8 +175,8 @@ const ProductSchema = new Schema({
         meanPrice: { type: Number, default: 0 }
     },
     active: {
-        startDate: { type: Date },
-        endDate: { type: Date },
+        startDate: { type: String },
+        endDate: { type: String },
     },
     images: [{
         order: { type: Number },
