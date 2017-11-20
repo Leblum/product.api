@@ -13,13 +13,14 @@ import * as supertest from 'supertest';
 import * as chai from 'chai';
 import { BijectionEncoder } from '../../utils/bijection-encoder';
 import * as log from 'winston';
+import { OrderStatus } from '../../enumerations';
 
 const api = supertest.agent(App.server);
 const mongoose = require("mongoose");
 const expect = chai.expect;
 const should = chai.should();
 
-@suite('Order Model -> ')
+@suite.only('Order Model -> ')
 class OrderTest {
 
     // First we need to get some users to work with from the identity service
@@ -27,16 +28,16 @@ class OrderTest {
         console.log('Testing orders');
         // This code should only be called if this test is run as a single test.  When run in the suite along with
         // bootstrap.util.spec this code is run by the bootstrap spec.
-        // App.server.on('dbConnected', async () => {
-        //     await Cleanup.clearDatabase();
-        //     await DatabaseBootstrap.seed();
+        App.server.on('dbConnected', async () => {
+            await Cleanup.clearDatabase();
+            await DatabaseBootstrap.seed();
 
-        //     // This will create, 2 users, an organization, and add the users to the correct roles.
-        //     await AuthUtil.createIdentityApiTestData();
-        //     done();
-        // });
+            // This will create, 2 users, an organization, and add the users to the correct roles.
+            await AuthUtil.createIdentityApiTestData();
+            done();
+        });
         //This done should be commented if you're going to run this as suite.only()
-        done();
+        //done();
     }
 
     public static async after() {
@@ -142,6 +143,44 @@ class OrderTest {
         // there's some pretty weird path stuff going on in the mongoose population stuff.
         console.dir(OrderSendResponse.body.status);
         expect(OrderSendResponse.body.status).to.equal(enums.OrderStatus.sent);
+
+        return;
+    }
+
+    // making sure that paging is working as it should. 
+    @test('paging on orders is working')
+    public async testPagingAndQuerying() {
+
+        let productDoc = await this.createProduct();
+        let supplierDoc = await this.createSupplier();
+
+        for (let i = 0; i < 21; i++) {
+            let order: IOrderDoc = await this.createOrder(supplierDoc, productDoc);
+        }
+
+        let orderQuery = {
+            status: OrderStatus.entered,
+        }
+
+        // Now we're going to search for products in that location, and we should get this one back.
+        let queryResponse = await api
+            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.ORDERS}${CONST.ep.common.QUERY}?skip=10&limit=10`)
+            .set("x-access-token", AuthUtil.systemAuthToken)
+            .send(orderQuery);
+        //console.log(queryResponse.body);
+        expect(queryResponse.status).to.equal(200);
+        expect(queryResponse.body.results).to.be.an('array');
+        expect(queryResponse.body.results.length).to.equal(10); // make sure there is at least one product returned.
+
+        // Now we're going to search for products in that location, and we should get this one back.
+        let previousPageResponse = await api
+            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.ORDERS}${CONST.ep.common.QUERY}?skip=0&limit=10`)
+            .set("x-access-token", AuthUtil.systemAuthToken)
+            .send(orderQuery);
+        expect(previousPageResponse.status).to.equal(200);
+        expect(previousPageResponse.body.results).to.be.an('array');
+        expect(previousPageResponse.body.results.length).to.equal(10); // make sure there is the right number of orders returned.
+        expect(previousPageResponse.body.results[0].orderNumber).to.not.equal(queryResponse.body.results[0].orderNumber); // make sure there is the right number of orders returned.
 
         return;
     }

@@ -364,8 +364,8 @@ class ProductTest {
             .send(locationQuery);
 
         expect(queryResponse.status).to.equal(200);
-        expect(queryResponse.body).to.be.an('array');
-        expect(queryResponse.body.length).to.equal(1); // make sure there is at least one product returned.
+        expect(queryResponse.body.results).to.be.an('array');
+        expect(queryResponse.body.results.length).to.equal(1); // make sure there is at least one product returned.
 
         return;
     }

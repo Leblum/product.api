@@ -9,6 +9,7 @@ import { OwnershipType } from "../../enumerations";
 import { Authz } from "../authorization";
 import { IOwnership } from "../../models/ownership.interface";
 import { ApiErrorHandler } from "../../api-error-handler";
+import { IQueryResponse } from '../../models/base/query-response.interface';
 
 export abstract class BaseController {
 
@@ -91,14 +92,28 @@ export abstract class BaseController {
         });
     }
 
-    public async query(request: Request, response: Response, next: NextFunction): Promise<IBaseModelDoc[]> {
+    public async query<T extends IBaseModelDoc>(request: Request, response: Response, next: NextFunction): Promise<IQueryResponse<T>> {
         try {
-            let models: IBaseModelDoc[] = await this.repository.query(request.body, this.defaultPopulationArgument);
+            const searchCriteria = new SearchCriteria(request, next);
 
-            response.json(models);
+            // We're going to query for the models.
+            let models: T[] = await this.repository.query(request.body, this.defaultPopulationArgument, searchCriteria) as T[];
+
+            // A pager will need to know the total count of models, based on the search parameters.  
+            let totalCount= await this.repository.searchingCount(request.body);
+
+            let queryResponse: IQueryResponse<T> = {
+                results: models,
+                paging:{
+                    limit: searchCriteria.limit,
+                    skip: searchCriteria.skip,
+                    count: totalCount,
+                }
+            }
+            response.json(queryResponse);
 
             log.info(`Queried for: ${this.repository.getCollectionName()}, Found: ${models.length}`);
-            return models;
+            return queryResponse;
         } catch (err) { next(err); }
     }
 

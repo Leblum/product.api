@@ -15,6 +15,7 @@ export interface IBaseRepository<IModelDoc extends IBaseModelDoc> {
     blank();
 
     count(searchCriteria: SearchCriteria): Promise<number>;
+    searchingCount(searchBody: any): Promise<number>;
 
     create(model: IModelDoc): Promise<IModelDoc>;
 
@@ -25,5 +26,5 @@ export interface IBaseRepository<IModelDoc extends IBaseModelDoc> {
 
     clear(searchBody: any): Promise<void>;
 
-    query(searchBody: any, populationArgument: any): Promise<IModelDoc[]>;
+    query(searchBody: any, populationArgument: any, searchCriteria?: SearchCriteria): Promise<IModelDoc[]>;
 }
