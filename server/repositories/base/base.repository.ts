@@ -44,7 +44,7 @@ export abstract class BaseRepository<IModelDoc extends IBaseModelDoc> implements
         return new this.mongooseModelInstance();
     }
 
-    public async count(searchCriteria: SearchCriteria, ): Promise<number> {
+    public async count(searchCriteria: SearchCriteria): Promise<number> {
         return await this.mongooseModelInstance
             .find(searchCriteria.criteria)
             .count();
