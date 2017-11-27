@@ -19,7 +19,7 @@ export class OrderNotification {
     // them to accept the order, or decline the order
     public static async PushToSupplierOnSend(order: IOrderDoc): Promise<admin.messaging.MessagingDevicesResponse> {
         //Now we take the supplier off the order, and send a notification to his push tokens.
-        if (order.supplier && order.supplier.pushTokens) {
+        if (order.supplier && order.supplier.pushTokens && order.supplier.pushTokens.length > 0) {
             let pushResponse = await FirebaseService.sendNotification(order.supplier.pushTokens, {
                 notification: {
                     title: 'New order request',
