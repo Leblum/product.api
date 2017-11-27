@@ -31,7 +31,7 @@ export class OrderRouter extends BaseRouter {
                 await this.controller.pickup(request, response, next);
             })
             .patch(`${this.resource}${CONST.ep.DELIVER}/:id`, async (request: Request, response: Response, next: NextFunction) => {
-                await this.controller.pickup(request, response, next);
+                await this.controller.deliver(request, response, next);
             })
             .patch(`${this.resource}${CONST.ep.COMPLETE}/:id`, async (request: Request, response: Response, next: NextFunction) => {
                 await this.controller.complete(request, response, next);
