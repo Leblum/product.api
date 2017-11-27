@@ -73,6 +73,8 @@ export class OrderController extends BaseController {
 
         order.status = status;
 
+        await this.repository.save(order);
+
         response.status(202).json(order);
         log.info(`Updated a: ${this.repository.getCollectionName()}, ID: ${order._id}, Order status changed to sent.`);
         return order;
