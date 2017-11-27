@@ -52,6 +52,10 @@ export class OrderController extends BaseController {
     return await this.changeOrderStatus(OrderStatus.pickedUp, request, response, next);
   }
 
+  public async deliver(request: Request, response: Response, next: NextFunction): Promise<IOrderDoc> {
+    return await this.changeOrderStatus(OrderStatus.delivered, request, response, next);
+  }
+
   public async complete(request: Request, response: Response, next: NextFunction): Promise<IOrderDoc> {
     return await this.changeOrderStatus(OrderStatus.completed, request, response, next);
   }

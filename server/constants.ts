@@ -23,6 +23,7 @@ export const CONST = {
         ACCEPT: '/accept',
         REJECT: '/reject',
         PICKUP: '/pickup',
+        DELIVER: '/deliver',
         COMPLETE: '/complete',
         client: {
         },
