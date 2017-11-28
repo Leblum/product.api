@@ -14,6 +14,18 @@ export enum OrderStatus{
     completed = 7
 }
 
+export enum NotificationType{
+    NewOrder_Supplier = 1,
+    OrderAccepted_Core = 2,
+    OrderRejected_Core = 3,
+    InventoryAdded_Core = 4,
+    InventoryFinalized_Core = 5,
+    InventoryRemoved_Core = 6,
+    PriceUpdated_Core = 7,
+    TeamMemberJoinRequest_Supplier = 8,
+    SupplierAwaitingApproval_Core = 9
+}
+
 export enum PushNotificationType{
     orderSent = 1,
     orderAccepted = 2,
