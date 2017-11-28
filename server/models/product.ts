@@ -12,6 +12,7 @@ export interface IProduct extends IBaseModel {
         ownershipType: enums.OwnershipType
     }[],
     supplier?: ISupplier,
+    wooProductId?: string,
     displayName?: string,
     commonName?: string,
     shortDescription?: string,
@@ -116,6 +117,7 @@ const ProductSchema = new Schema({
     supplier: {type: Schema.Types.ObjectId, ref: 'supplier'},
     displayName: { type: String },
     commonName: { type: String },
+    wooProductId: {type: String },
     shortDescription: { type: String },
     longDescription: { type: String },
     thumbnailDescription: { type: String },
