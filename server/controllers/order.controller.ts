@@ -52,6 +52,10 @@ export class OrderController extends BaseController {
     return await this.changeOrderStatus(OrderStatus.pickedUp, request, response, next);
   }
 
+  public async deliver(request: Request, response: Response, next: NextFunction): Promise<IOrderDoc> {
+    return await this.changeOrderStatus(OrderStatus.delivered, request, response, next);
+  }
+
   public async complete(request: Request, response: Response, next: NextFunction): Promise<IOrderDoc> {
     return await this.changeOrderStatus(OrderStatus.completed, request, response, next);
   }
@@ -72,6 +76,8 @@ export class OrderController extends BaseController {
         }
 
         order.status = status;
+
+        await this.repository.save(order);
 
         response.status(202).json(order);
         log.info(`Updated a: ${this.repository.getCollectionName()}, ID: ${order._id}, Order status changed to sent.`);
