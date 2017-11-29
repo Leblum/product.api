@@ -9,7 +9,7 @@ import { OwnershipType } from "../../enumerations";
 import { Authz } from "../authorization";
 import { IOwnership } from "../../models/ownership.interface";
 import { ApiErrorHandler } from "../../api-error-handler";
-import { IQueryResponse } from '../../models/base/query-response.interface';
+import { IQueryResponse } from '../../models/query-response.interface';
 
 export abstract class BaseController {
 
