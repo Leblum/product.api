@@ -17,3 +17,4 @@ export * from './team-member.interface';
 export * from './user-upgrade.interface';
 export * from './order.interface';
 export * from './order-item.interface';
+export * from './notifications/notification.interface';

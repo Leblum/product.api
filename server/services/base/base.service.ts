@@ -27,7 +27,6 @@ export abstract class BaseService {
 
             return response.body;
         } catch (err) { this.errorHandler(err) }
-
     }
 
     public async getList<T extends IBaseModel>(query?: Object): Promise<T[]> {
@@ -110,7 +109,6 @@ export abstract class BaseService {
 
             // There should be only one model returned by this query, and if we don't get just one back
             // we're not going to delete anything.
-            // TODO: I need to figure out how to handle error responses here.
             if (queryResponse.status === 200 && queryResponse.body.length === 1 && queryResponse.body[0]._id) {
                 return await superagent
                     .delete(`${this.baseUrl}${this.endpoint}/${queryResponse.body[0]._id}`)
@@ -118,6 +116,9 @@ export abstract class BaseService {
                     .catch(err => this.errorHandler(err));
 
             }
+            // else{
+            //     throw(`There was an error on delete single.  Your query didn't return just one result, or was an error.  Query ResponseBody: ${queryResponse.body}`);
+            // }
         } catch (err) { this.errorHandler(err) }
     }
 

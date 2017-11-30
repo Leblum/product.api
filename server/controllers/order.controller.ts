@@ -72,7 +72,15 @@ export class OrderController extends BaseController {
         }
 
         if (status === OrderStatus.sent) {
-          await OrderNotification.PushToSupplierOnSend(order);
+          await OrderNotification.NotifyOnStatusChangeSent(order);
+        }
+
+        if (status === OrderStatus.accepted) {
+          await OrderNotification.NotifyOnStatusChangeAccepted(order);
+        }
+
+        if (status === OrderStatus.rejected) {
+          await OrderNotification.NotifyOnStatusChangeRejected(order);
         }
 
         order.status = status;

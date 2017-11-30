@@ -23,6 +23,7 @@ import { SupportingServicesBootstrap } from './config/supporting-services.bootst
 
 import methodOverride = require('method-override');
 import log = require('winston');
+
 import { Authz } from "./controllers/authorization";
 import path = require('path');
 import cors = require('cors')
@@ -215,14 +216,15 @@ class Application {
     this.express.use('/api/*', new AuthenticationController().authMiddleware);
 
     this.express.use(CONST.ep.API + CONST.ep.V1, new routers.SupplierRegistrationRouter().getRouter());
-    
     this.express.use(CONST.ep.API + CONST.ep.V1, new routers.ProductRouter().getRouter());
     this.express.use(CONST.ep.API + CONST.ep.V1, new routers.SupplierRouter().getRouter());
+    
 
     // This isn't quite right, the security here is bad.  This is basically saying all suppliers, can access all orders.  
     // really when a supplier is sent an order, we need to update their ownership, and then we can check security against their ownership of their order.
     // TODO: cleanup security around orders and suppliers.
     this.express.use(CONST.ep.API + CONST.ep.V1, Authz.permit(CONST.ADMIN_ROLE, CONST.SUPPLIER_EDITOR_ROLE, CONST.SUPPLIER_ADMIN_ROLE ),  new routers.OrderRouter().getRouter());
+    this.express.use(CONST.ep.API + CONST.ep.V1, Authz.permit(CONST.ADMIN_ROLE, CONST.SUPPLIER_EDITOR_ROLE, CONST.SUPPLIER_ADMIN_ROLE ),  new routers.NotificationRouter().getRouter());
     
     this.express.use(CONST.ep.API + CONST.ep.V1 + `${CONST.ep.PRODUCTS}${CONST.ep.UPLOAD_IMAGES}/:id`,
       Authz.permit(CONST.PRODUCT_ADMIN_ROLE, CONST.ADMIN_ROLE, CONST.PRODUCT_EDITOR_ROLE),

@@ -1,6 +1,6 @@
 import { Database } from '../../config/database/database';
 import { App, server } from '../../server-entry';
-import { Product, IProduct, ITokenPayload, IOrder, Order, ISupplier, IOrderDoc, ISupplierDoc, IProductDoc } from '../../models';
+import { Product, IProduct, ITokenPayload, IOrder, Order, ISupplier, IOrderDoc, ISupplierDoc, IProductDoc, INotification } from '../../models';
 import { Config } from '../../config/config';
 import { CONST } from "../../constants";
 import { AuthUtil } from "../authentication.util.spec";
@@ -141,9 +141,137 @@ class OrderTest {
 
         // Here we're checking to make sure that data population is working, because 
         // there's some pretty weird path stuff going on in the mongoose population stuff.
-        console.dir(OrderSendResponse.body.status);
+        //console.dir(OrderSendResponse.body.status);
         expect(OrderSendResponse.body.status).to.equal(enums.OrderStatus.sent);
 
+        return;
+    }
+
+    @test('make sure send order and we have a notification that we can query on later.  So were storing notifications in the datatbase.')
+    public async sendOrderToSupplierTestNotificationStorage() {
+        let productDoc = await this.createProduct();
+        let supplierDoc = await this.createSupplier();
+
+        let order: IOrderDoc = await this.createOrder(supplierDoc, productDoc);
+
+        // now we try and do a get single, and see if we get back a populated order
+        let response = await api
+            .get(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.ORDERS}/${order._id}`)
+            .set("x-access-token", AuthUtil.systemAuthToken);
+
+        expect(response.status).to.equal(200);
+        expect(response.body).to.be.an('object');
+        expect(response.body).to.have.property('code');
+        expect(response.body.items).to.be.an('array');
+
+        // Now we're going to send this order off to the supplier that's on it.  
+
+        let OrderSendResponse = await api
+                    .patch(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.ORDERS}${CONST.ep.SEND}/${order._id}`)
+                    .set("x-access-token", AuthUtil.systemAuthToken);
+
+        // Here we're checking to make sure that data population is working, because 
+        // there's some pretty weird path stuff going on in the mongoose population stuff.
+        expect(OrderSendResponse.body.status).to.equal(enums.OrderStatus.sent);
+
+        let notificationQuery = {
+            relatedTo: supplierDoc.id
+        }
+
+        let notificationsQueryResponse = await api
+                            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.NOTIFICATIONS}${CONST.ep.common.QUERY}?skip=0&limit=10`)
+                            .set("x-access-token", AuthUtil.systemAuthToken)
+                            .send(notificationQuery);
+
+        expect(notificationsQueryResponse.status).to.equal(200);
+        expect(notificationsQueryResponse.body).to.be.an('object');
+        expect(notificationsQueryResponse.body).to.have.property('results');
+        expect(notificationsQueryResponse.body.results).to.be.an('array');
+        expect(notificationsQueryResponse.body.results.length).to.be.greaterThan(0);
+        
+        return;
+    }
+
+    @test('accepting an order creates a system level notification')
+    public async acceptOrder() {
+        let productDoc = await this.createProduct();
+        let supplierDoc = await this.createSupplier();
+
+        let order: IOrderDoc = await this.createOrder(supplierDoc, productDoc);
+
+        // Now we're going to send this order off to the supplier that's on it.  
+        let OrderSendResponse = await api
+                    .patch(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.ORDERS}${CONST.ep.SEND}/${order._id}`)
+                    .set("x-access-token", AuthUtil.systemAuthToken);
+
+        // Now we're going to send this order off to the supplier that's on it.  
+        let OrderAcceptResponse = await api
+                    .patch(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.ORDERS}${CONST.ep.ACCEPT}/${order._id}`)
+                    .set("x-access-token", AuthUtil.systemAuthToken);
+
+        // Here we're checking to make sure that data population is working, because 
+        // there's some pretty weird path stuff going on in the mongoose population stuff.
+        expect(OrderAcceptResponse.body.status).to.equal(enums.OrderStatus.accepted);
+
+        //This should have created an accepted system notification that we can pick up in Taki for this order.
+        let notificationQuery: INotification = {
+            isSystem: true,
+            type: enums.NotificationType.OrderAccepted_Core
+        }
+
+        let notificationsQueryResponse = await api
+                            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.NOTIFICATIONS}${CONST.ep.common.QUERY}?skip=0&limit=10`)
+                            .set("x-access-token", AuthUtil.systemAuthToken)
+                            .send(notificationQuery);
+
+        expect(notificationsQueryResponse.status).to.equal(200);
+        expect(notificationsQueryResponse.body).to.be.an('object');
+        expect(notificationsQueryResponse.body).to.have.property('results');
+        expect(notificationsQueryResponse.body.results).to.be.an('array');
+        expect(notificationsQueryResponse.body.results.length).to.be.greaterThan(0);
+        
+        return;
+    }
+
+    @test('rejecting an order creates a system level notification.')
+    public async rejectingOrder() {
+        let productDoc = await this.createProduct();
+        let supplierDoc = await this.createSupplier();
+
+        let order: IOrderDoc = await this.createOrder(supplierDoc, productDoc);
+
+        // Now we're going to send this order off to the supplier that's on it.  
+        let OrderSendResponse = await api
+                    .patch(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.ORDERS}${CONST.ep.SEND}/${order._id}`)
+                    .set("x-access-token", AuthUtil.systemAuthToken);
+
+        // Now we're going to send this order off to the supplier that's on it.  
+        let orderRejectResponse = await api
+                    .patch(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.ORDERS}${CONST.ep.REJECT}/${order._id}`)
+                    .set("x-access-token", AuthUtil.systemAuthToken);
+
+        // Here we're checking to make sure that data population is working, because 
+        // there's some pretty weird path stuff going on in the mongoose population stuff.
+        //console.dir(OrderSendResponse.body.status);
+        expect(orderRejectResponse.body.status).to.equal(enums.OrderStatus.rejected);
+
+        //This should have created an accepted system notification that we can pick up in Taki for this order.
+        let notificationQuery: INotification = {
+            isSystem: true,
+            type: enums.NotificationType.OrderRejected_Core
+        }
+
+        let notificationsQueryResponse = await api
+                            .post(`${CONST.ep.API}${CONST.ep.V1}${CONST.ep.NOTIFICATIONS}${CONST.ep.common.QUERY}?skip=0&limit=10`)
+                            .set("x-access-token", AuthUtil.systemAuthToken)
+                            .send(notificationQuery);
+                            
+        expect(notificationsQueryResponse.status).to.equal(200);
+        expect(notificationsQueryResponse.body).to.be.an('object');
+        expect(notificationsQueryResponse.body).to.have.property('results');
+        expect(notificationsQueryResponse.body.results).to.be.an('array');
+        expect(notificationsQueryResponse.body.results.length).to.be.greaterThan(0);
+        
         return;
     }
 
