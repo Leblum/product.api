@@ -5,6 +5,6 @@ export interface IBaseModel {
     createdBy?: string;
     modifiedBy?: string;
     createdAt?: Date,
-    modifiedAt?: Date,
+    updatedAt?: Date,
     ownerships?:Array<IOwnership>
 }
